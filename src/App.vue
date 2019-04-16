@@ -1,60 +1,101 @@
 <template>
-  <div id="app">
-    <img src="./assets/logo.png">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank">Twitter</a></li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li><a href="http://router.vuejs.org/" target="_blank">vue-router</a></li>
-      <li><a href="http://vuex.vuejs.org/" target="_blank">vuex</a></li>
-      <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
-    </ul>
-  </div>
+    <div id="app" class="row">
+        <!-- Main Sidebar -->
+        <aside class="main-sidebar col-10 col-md-3 col-lg-2 px-0" v-bind:class="{ open: this.isOpen }">
+            <div class="main-navbar">
+                <nav class="navbar align-items-stretch navbar-light bg-white flex-md-nowrap border-bottom p-0 logo-bg">
+                    <a class="navbar-brand mr-0 " href="#" style="line-height: 12px;width:90%;height:100%;">
+                    </a>
+                    <a class="navbar-brand mr-0 pr-3 d-md-none" href="#" v-on:click="hideMenu"><font-awesome-icon icon="times" size="lg"/></a>
+                </nav>
+            </div>
+            <div class="nav-wrapper">
+                <ul class="nav flex-column">
+                    <li class="nav-item" v-on:click="hideMenu">
+                        <router-link to="/" class="nav-link">
+                            <font-awesome-icon icon="tachometer-alt"/>
+                            Home
+                        </router-link>
+                    </li>
+                    <li class="nav-item" v-on:click="hideMenu">
+                        <router-link to="/control" class="nav-link">
+                            <font-awesome-icon icon="gamepad"/>
+                            Control
+                        </router-link>
+                    </li>
+                    <li class="nav-item" v-on:click="hideMenu">
+                        <router-link to="/setup" class="nav-link">
+                            <font-awesome-icon icon="cogs"/>
+                            Setup
+                        </router-link>
+                    </li>
+                    <li class="nav-item" v-on:click="hideMenu">
+                        <router-link to="/about" class="nav-link">
+                            <font-awesome-icon icon="info-circle"/>
+                            About
+                        </router-link>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+        <!-- End Main Sidebar -->
+        <main class="main-content col-lg-10 col-md-9 col-sm-12 p-0 offset-lg-2 offset-md-3">
+            <div class="main-navbar sticky-top bg-white">
+                <!-- Main Navbar -->
+                <nav class="navbar align-items-stretch navbar-light flex-md-nowrap p-0">
+                    <div sytle="display:block;">
+                        <div class="page-title pl-4 pt-2" id="header-title-from-content">ESP-StepperMotor-Server</div>
+                        <div id="header-description-from-content"
+                             class="small pl-4 pt-2 overflow-hidden d-none d-md-block"></div>
+                    </div>
+                    <nav class="nav">
+                        <a href="#" v-on:click="toggleNavbar"
+                           class="nav-link nav-link-icon d-md-none d-xs-inline text-center border-left">
+                            <font-awesome-icon icon="bars" size="2x"/>
+                        </a>
+                    </nav>
+                </nav>
+            </div>
+            <!-- / .main-navbar -->
+            <div class="main-content-container container-fluid px-4">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <router-view/>
+                    </div>
+                </div>
+            </div>
+            <footer class="main-footer d-flex p-2 px-3 bg-white border-top mt-4">
+
+            </footer>
+        </main>
+    </div>
 </template>
 
-<script>
-export default {
-  name: 'app',
-  data () {
-    return {
-      msg: 'Welcome to Your Vue.js App'
+<style>
+    .logo-bg {
+        background-image: url("./assets/logo.svg");
+        background-position: left;
+        background-size: contain;
+        background-repeat: no-repeat;
+        margin: 5px;
     }
-  }
-}
-</script>
-
-<style lang="scss">
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-
-h1, h2 {
-  font-weight: normal;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-
-a {
-  color: #42b983;
-}
 </style>
+
+<script>
+    export default {
+        data: function() {
+            return  {
+                isOpen: false,
+                versionNumber: "1.0.0"
+            }
+        },
+        methods: {
+            toggleNavbar: function () {
+                this.isOpen = !this.isOpen;
+            },
+            hideMenu: function(){
+                this.isOpen = false;
+            }
+        }
+    }
+</script>

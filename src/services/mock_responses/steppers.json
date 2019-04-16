@@ -1,0 +1,72 @@
+{
+  "steppers": [
+    {
+      "id": 0,
+      "configured": "true",
+      "name": "X-Axis",
+      "stepPin": 16,
+      "dirPin": 16,
+      "position": {
+        "mm": 0,
+        "revs": 0,
+        "steps": 0
+      },
+      "velocity": {
+        "rev_s": 0,
+        "mm_s": 0,
+        "steps_s": 0
+      },
+      "stopped": true
+    },
+    {
+      "id": 1,
+      "configured": "true",
+      "name": "Y-Axis",
+      "stepPin": 13,
+      "dirPin": 14,
+      "position": {
+        "mm": 0,
+        "revs": 0,
+        "steps": 0
+      },
+      "velocity": {
+        "rev_s": 0,
+        "mm_s": 0,
+        "steps_s": 0
+      },
+      "stopped": true
+    },
+    {
+      "id": 2,
+      "configured": "false"
+    },
+    {
+      "id": 3,
+      "configured": "false"
+    },
+    {
+      "id": 4,
+      "configured": "false"
+    },
+    {
+      "id": 5,
+      "configured": "false"
+    },
+    {
+      "id": 6,
+      "configured": "false"
+    },
+    {
+      "id": 7,
+      "configured": "false"
+    },
+    {
+      "id": 8,
+      "configured": "false"
+    },
+    {
+      "id": 9,
+      "configured": "false"
+    }
+  ]
+}
