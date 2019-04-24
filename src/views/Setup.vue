@@ -28,10 +28,12 @@
                         </div>
                         <div class="form-group">
                             <label for="stepPin">ESP IO pin for step signal</label>
-                            <select id="stepPin" class="form-control" v-model="stepperToAdd.stepPin">
+                            <select id="stepPin" name="stepPin" class="form-control" v-model="stepperToAdd.stepPin">
                                 <option value="-1" selected>please select an IO pin</option>
-                                <option v-for="ioPin in allowedIoOutputPins" :value="ioPin"
-                                        v-bind:key="'stepPin'+ioPin">{{ioPin}}
+                                <option v-for="ioPin in allowedIoOutputPins" :value="ioPin.pin"
+                                        :disabled="ioPin.disabled"
+                                        v-bind:key="'stepPin'+(ioPin.pin)">{{ioPin.label}}
+                                    {{ioPin.connectedDeviceNames}}
                                 </option>
                             </select>
                             <small id="stepPinHelp" class="form-text text-muted">select the IO pin of the ESP that is
@@ -40,11 +42,13 @@
                         </div>
                         <div class="form-group">
                             <label for="dirPin">ESP IO pin for direction signal</label>
-                            <select id="dirPin" class="form-control" v-model="stepperToAdd.dirPin">
+                            <select id="dirPin" name="dirPin" class="form-control" v-model="stepperToAdd.dirPin">
                                 <option value="-1" selected>please select an IO pin</option>
-                                <option v-for="ioPin in allowedIoOutputPins" :value="ioPin"
-                                        v-bind:key="'dirPin'+ioPin">
-                                    {{ioPin}}
+                                <option value="-2" selected>not connected / direction pin is not used</option>
+                                <option v-for="ioPin in allowedIoOutputPins" :value="ioPin.pin"
+                                        :disabled="ioPin.disabled"
+                                        v-bind:key="'dirPin'+(ioPin.pin)">
+                                    {{ioPin.label}} {{ioPin.connectedDeviceNames}}
                                 </option>
                             </select>
                             <small id="dirPinHelp" class="form-text text-muted">select the IO pin of the ESP that is
@@ -85,13 +89,14 @@
                             <label for="switchIoPin">ESP IO pin the switch is connected to</label>
                             <select id="switchIoPin" class="form-control" v-model="switchToAdd.ioPinNumber">
                                 <option value="-1" selected>please select an IO pin</option>
-                                <option v-for="ioPin in allowedIoOutputPins" :value="ioPin"
-                                        v-bind:key="'switchPin'+ioPin">{{ioPin}}
+                                <option v-for="ioPin in allowedIoOutputPins" :value="ioPin.pin"
+                                        :disabled="ioPin.disabled"
+                                        v-bind:key="'switchPin'+ioPin.pin">{{ioPin.label}}
+                                    {{ioPin.connectedDeviceNames}}
                                 </option>
                             </select>
                             <small id="switchIoPinHelp" class="form-text text-muted">select the IO pin of the ESP that
-                                is
-                                connected to this switch
+                                is connected to this switch
                             </small>
                         </div>
                         <div class="form-group">
@@ -103,8 +108,8 @@
                                     {{stepperConfig.name}} ({{stepperConfig.id}})
                                 </option>
                             </select>
-                            <small id="stepperIdHelp" class="form-text text-muted">select the IO pin of the ESP that is
-                                connected to the direction-pin on the stepper driver board
+                            <small id="stepperIdHelp" class="form-text text-muted">select the stepper motor to which
+                                this switch should be associated
                             </small>
                         </div>
                         <div class="form-group">
@@ -145,6 +150,13 @@
                 </b-modal>
             </div>
         </div>
+
+        <rotary-encoder-details
+                v-for="encoderConfiguration in configuredEncoders"
+                v-bind:key="'encoder-'+encoderConfiguration.id"
+                v-bind:encoderConfiguration="encoderConfiguration"
+                v-on:delete="deleteRotaryEncoderConfiguration">
+        </rotary-encoder-details>
     </div>
 </template>
 
@@ -157,6 +169,7 @@
     import StepperMotorDetails from '../components/StepperMotorDetails'
     import PositionSwitchDetails from '../components/PositionSwitchDetails'
     import BButton from 'bootstrap-vue/es/components/button/button';
+    import RotaryEncoderDetails from "../components/RotaryEncoderDetails";
 
     const apiService = new ApiService();
 
@@ -179,27 +192,247 @@
                 },
                 configuredSteppers: [],
                 configuredSwitches: [],
-                allowedIoOutputPins: [0, 1, 2, 3, 4, 5, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33, 34, 35, 36, 39]
+                configuredEncoders: [],
+                allowedIoOutputPins: [
+                    {
+                        pin: 0,
+                        disabled: false,
+                        label: "GPIO 0",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 1,
+                        disabled: false,
+                        label: "GPIO 1",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 2,
+                        disabled: false,
+                        label: "GPIO 2",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 3,
+                        disabled: false,
+                        label: "GPIO 3",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 4,
+                        disabled: false,
+                        label: "GPIO 4",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 5,
+                        disabled: false,
+                        label: "GPIO 5",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 12,
+                        disabled: false,
+                        label: "GPIO 12",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 13,
+                        disabled: false,
+                        label: "GPIO 13",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 14,
+                        disabled: false,
+                        label: "GPIO 14",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 15,
+                        disabled: false,
+                        label: "GPIO 15",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 16,
+                        disabled: false,
+                        label: "GPIO 16",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 17,
+                        disabled: false,
+                        label: "GPIO 17",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 18,
+                        disabled: false,
+                        label: "GPIO 18",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 19,
+                        disabled: false,
+                        label: "GPIO 19",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 21,
+                        disabled: false,
+                        label: "GPIO 21",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 22,
+                        disabled: false,
+                        label: "GPIO 22",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 23,
+                        disabled: false,
+                        label: "GPIO 23",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 25,
+                        disabled: false,
+                        label: "GPIO 25",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 26,
+                        disabled: false,
+                        label: "GPIO 26",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 27,
+                        disabled: false,
+                        label: "GPIO 27",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 32,
+                        disabled: false,
+                        label: "GPIO 32",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 33,
+                        disabled: false,
+                        label: "GPIO 33",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 34,
+                        disabled: false,
+                        label: "GPIO 34",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 35,
+                        disabled: false,
+                        label: "GPIO 35",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 36,
+                        disabled: false,
+                        label: "GPIO 36",
+                        connectedDeviceNames: ""
+                    },
+                    {
+                        pin: 39,
+                        disabled: false,
+                        label: "GPIO 39",
+                        connectedDeviceNames: ""
+                    }
+                ]
             }
         },
         components: {
             BButton,
             StepperMotorDetails,
-            PositionSwitchDetails
+            PositionSwitchDetails,
+            RotaryEncoderDetails
         },
         methods: {
+            setPinUsedByInfo(pinNumber, usedByString) {
+                this.allowedIoOutputPins.forEach((pinObject) => {
+                    if (pinObject.pin === pinNumber) {
+                        pinObject.connectedDeviceNames = pinObject.connectedDeviceNames + '(' + usedByString + ')';
+                        pinObject.disabled = true;
+                    }
+                });
+            },
             getConfiguredSteppers() {
                 apiService.getConfiguredStepperMotors().then((data) => {
-                    this.configuredSteppers = data.filter(function (stepper) {
-                        return stepper.configured == "true"
-                    });
+                    if (data) {
+                        this.configuredSteppers = data.filter(function (stepper) {
+                            return stepper.configured == "true"
+                        });
+
+                        this.configuredSteppers.forEach((value) => {
+                            if (value.stepPin >= 0) {
+                                this.setPinUsedByInfo(value.stepPin, value.name + ' step-pin');
+                            }
+                            if (value.dirPin >= 0) {
+                                this.setPinUsedByInfo(value.dirPin, value.name + ' direction-pin');
+                            }
+                            console.log(value);
+                        });
+                    }
                 });
             },
             getConfiguredSwitches() {
                 apiService.getConfiguredPositionSwitches().then((data) => {
-                    this.configuredSwitches = data.filter(function (stepper) {
-                        return stepper.name != null;
-                    });
+                    if (data) {
+                        this.configuredSwitches = data.filter(function (configuredSwitch) {
+                            return configuredSwitch.name != null;
+                        });
+
+                        this.configuredSwitches.forEach((configuredSwitch) => {
+                            if (configuredSwitch.pin >= 0) {
+                                this.setPinUsedByInfo(configuredSwitch.pin, configuredSwitch.name + ' switch');
+                            }
+                            console.log(configuredSwitch);
+                        });
+                    }
+                });
+            },
+            getConfiguredRotaryEncoders() {
+                //DUMMY
+                console.log("populating dummy encoders");
+                this.configuredEncoders = [
+                    {
+                        name: "encoder 1",
+                        id: 0,
+                        ioPinA: 1,
+                        ioPinB: 2,
+                        stepperId: 0,
+                        stepperName: "X-Axis"
+                    },
+                    {
+                        name: "encoder 2",
+                        id: 1,
+                        ioPinA: 15,
+                        ioPinB: 16,
+                        stepperId: 1,
+                        stepperName: "Y-Axis"
+                    }
+                ];
+
+                this.configuredEncoders.forEach((configuredEncoder) => {
+                    if (configuredEncoder.ioPinA >= 0) {
+                        this.setPinUsedByInfo(configuredEncoder.ioPinA, configuredEncoder.name + ' encoder pin A');
+                    }
+                    if (configuredEncoder.ioPinB >= 0) {
+                        this.setPinUsedByInfo(configuredEncoder.ioPinB, configuredEncoder.name + ' encoder pin B');
+                    }
+                    console.log(configuredEncoder);
                 });
             },
             addStepperConfiguration(bvModalEvt) {
@@ -278,10 +511,23 @@
                     }
                 );
             },
+            deleteRotaryEncoderConfiguration(id) {
+                apiService.deleteRotaryEncoder(id).then(
+                    () => {
+                        this.configuredEncoders = this.configuredEncoders.filter(function (rotaryEncoder) {
+                            return rotaryEncoder.id != id;
+                        })
+                    },
+                    (error) => {
+                        alert("An error occurred while trying to delete the rotary encoder:\n" + error.response.data.error);
+                    }
+                );
+            }
         },
         mounted() {
             this.getConfiguredSteppers();
             this.getConfiguredSwitches();
+            this.getConfiguredRotaryEncoders();
         },
     }
 </script>

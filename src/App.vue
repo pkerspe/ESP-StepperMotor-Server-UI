@@ -6,7 +6,9 @@
                 <nav class="navbar align-items-stretch navbar-light bg-white flex-md-nowrap border-bottom p-0 logo-bg">
                     <a class="navbar-brand mr-0 " href="#" style="line-height: 12px;width:90%;height:100%;">
                     </a>
-                    <a class="navbar-brand mr-0 pr-3 d-md-none" href="#" v-on:click="hideMenu"><font-awesome-icon icon="times" size="lg"/></a>
+                    <a class="navbar-brand mr-0 pr-3 d-md-none" href="#" v-on:click="hideMenu">
+                        <font-awesome-icon icon="times" size="lg"/>
+                    </a>
                 </nav>
             </div>
             <div class="nav-wrapper">
@@ -64,8 +66,12 @@
                     </div>
                 </div>
             </div>
-            <footer class="main-footer d-flex p-2 px-3 bg-white border-top mt-4">
-
+            <footer class="main-footer d-flex flex-row-reverse p-2 px-3 bg-white border-top mt-4">
+                <div class="align-content-end">
+                    <font-awesome-icon icon="dot-circle"
+                                       v-bind:class="{statusOnline: isOnline, statusOffline: !isOnline}"/>
+                    {{onlineSatusText}}
+                </div>
             </footer>
         </main>
     </div>
@@ -79,23 +85,66 @@
         background-repeat: no-repeat;
         margin: 5px;
     }
+
+    .statusOffline {
+        color: red;
+    }
+
+    .statusOnline {
+        color: green;
+    }
 </style>
 
 <script>
+    import {ApiService} from './services/ApiService';
+
+    const apiService = new ApiService();
+
     export default {
-        data: function() {
-            return  {
+        data: function () {
+            return {
                 isOpen: false,
-                versionNumber: "1.0.0"
+                versionNumber: "1.0.0",
+                isOnline: false,
+                onlineSatusText: "trying to connect to server",
+                serverStatus: null
             }
         },
         methods: {
             toggleNavbar: function () {
                 this.isOpen = !this.isOpen;
             },
-            hideMenu: function(){
+            hideMenu: function () {
                 this.isOpen = false;
-            }
-        }
+            },
+            getOnlineStatus() {
+                console.log("polling for status");
+                apiService.getServerStatus().then((data) => {
+                    this.serverStatus = data;
+                    if(!this.isOnline) {
+                        this.isOnline = true;
+                        this.onlineSatusText = "connected";
+                        this.$toastr.success('Connected to ESPStepperMotor Server', 'Connection established', {timeOut: 1500});
+                    }
+                    setTimeout(() => {
+                        this.getOnlineStatus()
+                    }, 20000);
+                }).catch((error) => {
+                    console.log("error while trying to get server status", error);
+                    //set higher polling frequency for status, to check when server is back
+                    setTimeout(() => {
+                        this.getOnlineStatus()
+                    }, 1000);
+                    if(this.isOnline){
+                        this.isOnline = false;
+                        this.onlineSatusText = "disconnected";
+                        this.$toastr.error('Failed to connect to ESPStepperMotor Server', 'Not connected', {});
+                    }
+                });
+            },
+        },
+        mounted() {
+            this.getOnlineStatus();
+        },
     }
 </script>

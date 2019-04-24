@@ -1,4 +1,7 @@
 {
+  "status": {
+
+  },
   "steppers": [
     {
       "id": 0,

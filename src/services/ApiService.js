@@ -3,7 +3,7 @@ import steppersMock from './mock_responses/steppers';
 import switchesMock from './mock_responses/steppers';
 
 const API_URL = 'http://192.168.0.19';
-const mock = false;
+const mock = true;
 
 export class ApiService {
     constructor() {
@@ -88,9 +88,22 @@ export class ApiService {
         return axios.delete(url).then(response => response.data);
     }
 
+    deleteRotaryEncoder(encoderId) {
+        const url = `${API_URL}/api/encoders?id=`+encoderId;
+        return axios.delete(url).then(response => response.data);
+    }
+
     getServerStatus() {
         const url = `${API_URL}/api/status`;
-        return axios.get(url).then(response => response.data);
+        if (mock) {
+            var p1 = new Promise(
+                function (resolve) {
+                    resolve(switchesMock.status);
+                });
+            return p1;
+        } else {
+            return axios.get(url).then(response => response.data);
+        }
     }
 
     getRestApiVersion() {
