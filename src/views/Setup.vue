@@ -157,6 +157,61 @@
                 v-bind:encoderConfiguration="encoderConfiguration"
                 v-on:delete="deleteRotaryEncoderConfiguration">
         </rotary-encoder-details>
+
+        <div class="row pt-3">
+            <div class="col-12">
+                <b-button variant="success" v-b-modal.add-encoder>
+                    <font-awesome-icon icon="plus-circle"/>
+                    add rotary encoder
+                </b-button>
+
+                <!-- Modal to add new rotary encoder -->
+                <b-modal id="add-encoder"
+                         title="Add a new rotary encoder configuration"
+                         @ok="addEncoderConfiguration"
+                         ref="addEncoderModal">
+                    <form>
+                        <div class="form-group">
+                            <label for="displayName">Display name for the rotary encoder</label>
+                            <input type="text" class="form-control" id="encoderDisplayName" v-model="encoderToAdd.name"
+                                   placeholder="display name">
+                        </div>
+                        <div class="form-group">
+                            <label for="stepPin">ESP IO pin that is connected to pin A of the rotary encoder</label>
+                            <select id="ioPinA" name="ioPinA" class="form-control" v-model="encoderToAdd.ioPinA">
+                                <option value="-1" selected>please select an IO pin</option>
+                                <option v-for="ioPin in allowedIoOutputPins" :value="ioPin.pin"
+                                        :disabled="ioPin.disabled"
+                                        v-bind:key="'pinA'+(ioPin.pin)">{{ioPin.label}}
+                                    {{ioPin.connectedDeviceNames}}
+                                </option>
+                            </select>
+                            <small id="ioPinAHelp" class="form-text text-muted">select the IO pin of the ESP that is
+                                connected to <strong>pin A</strong> of the rotary encoder</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="ioPinB">ESP IO pin that is connected to pin B of the rotary encoder</label>
+                            <select id="ioPinB" name="ioPinB" class="form-control" v-model="encoderToAdd.ioPinB">
+                                <option value="-1" selected>please select an IO pin</option>
+                                <option v-for="ioPin in allowedIoOutputPins" :value="ioPin.pin"
+                                        :disabled="ioPin.disabled"
+                                        v-bind:key="'pinB'+(ioPin.pin)">{{ioPin.label}}
+                                    {{ioPin.connectedDeviceNames}}
+                                </option>
+                            </select>
+                            <small id="ioPinBHelp" class="form-text text-muted">select the IO pin of the ESP that is
+                                connected to <strong>pin B</strong> of the rotary encoder</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="encoderMultuplier">Step Multiplier value</label>
+                            <input type="number" class="form-control" id="encoderMultuplier" v-model="encoderToAdd.stepMultiplier" min="1" max="18446744073709551615">
+                            <small id="stepMultiplierHelp" class="form-text text-muted">set a multiplier that defines how many steps the stepper motor should move when the rotary encoder is turned by one step
+                            </small>
+                        </div>
+                    </form>
+                </b-modal>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -189,6 +244,14 @@
                     switchPosition: -1,
                     switchType: -1,
                     switchTypeActiveState: -1
+                },
+                encoderToAdd: {
+                    name: "",
+                    id: -1,
+                    ioPinA: -1,
+                    ioPinB: -1,
+                    stepperId: -1,
+                    stepMultiplier: 1
                 },
                 configuredSteppers: [],
                 configuredSwitches: [],
@@ -484,6 +547,27 @@
                         this.switchToAdd.switchTypeActiveState = "";
                     }, (error) => {
                         alert("An error occurred while trying to add the new stepper:\n" + error.response.data.error);
+                    });
+                }
+            },
+            addEncoderConfiguration(bvModalEvt) {
+                // Prevent modal from closing
+                bvModalEvt.preventDefault();
+                if (this.encoderToAdd.name == "") {
+                    alert('Please enter a name for the new stepper motor');
+                } else if (this.encoderToAdd.stepPin == -1) {
+                    alert('Please select the step IO pin');
+                } else if (this.encoderToAdd.dirPin == -1) {
+                    alert('Please select the direction IO pin');
+                } else {
+                    apiService.addStepperMotor(this.encoderToAdd.stepPin, this.encoderToAdd.dirPin, this.encoderToAdd.name).then(() => {
+                        this.getConfiguredSteppers();
+                        this.$refs['addStepperModal'].hide();
+                        this.encoderToAdd.stepPin = -1;
+                        this.encoderToAdd.dirPin = -1;
+                        this.encoderToAdd.name = "";
+                    }, (error) => {
+                        alert("An error occurred while trying to add the new rotary encoder:\n" + error.response.data.error);
                     });
                 }
             },

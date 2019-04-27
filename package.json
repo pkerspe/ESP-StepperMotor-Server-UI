@@ -11,6 +11,8 @@
     "core-js": "^2.6.5",
     "vue": "^2.6.6",
     "vue-router": "^3.0.1",
+    "toastr": "^2.1.4",
+    "vue-toastr-2": "0.0.10",
     "bootstrap-vue": "^2.0.0-rc.18",
     "bootstrap": "^4.3.1",
     "@fortawesome/fontawesome-svg-core": "^1.2.17",
