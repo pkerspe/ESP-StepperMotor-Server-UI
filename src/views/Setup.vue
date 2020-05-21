@@ -1,617 +1,762 @@
 <template>
-    <div class="setup">
+  <div class="setup">
+    <stepper-motor-details
+      v-for="stepperConfiguration in configuredSteppers"
+      v-bind:key="'stepper-'+stepperConfiguration.id"
+      v-bind:stepperConfiguration="stepperConfiguration"
+      v-on:delete="deleteStepperConfiguration"
+    ></stepper-motor-details>
 
-        <stepper-motor-details
-                v-for="stepperConfiguration in configuredSteppers"
-                v-bind:key="'stepper-'+stepperConfiguration.id"
-                v-bind:stepperConfiguration="stepperConfiguration"
-                v-on:delete="deleteStepperConfiguration">
-        </stepper-motor-details>
+    <div class="row pt-3">
+      <div class="col-12">
+        <b-button variant="success" v-b-modal.add-stepper>
+          <font-awesome-icon icon="plus-circle" />add stepper motor
+        </b-button>
 
-        <div class="row pt-3">
-            <div class="col-12">
-                <b-button variant="success" v-b-modal.add-stepper>
-                    <font-awesome-icon icon="plus-circle"/>
-                    add stepper motor
-                </b-button>
-
-                <!-- Modal to add new stepper -->
-                <b-modal id="add-stepper"
-                         title="Add a new stepper motor configuration"
-                         @ok="addStepperConfiguration"
-                         ref="addStepperModal">
-                    <form>
-                        <div class="form-group">
-                            <label for="displayName">Display name for the stepper motor</label>
-                            <input type="text" class="form-control" id="displayName" v-model="stepperToAdd.name"
-                                   placeholder="display name or axis name">
-                        </div>
-                        <div class="form-group">
-                            <label for="stepPin">ESP IO pin for step signal</label>
-                            <select id="stepPin" name="stepPin" class="form-control" v-model="stepperToAdd.stepPin">
-                                <option value="-1" selected>please select an IO pin</option>
-                                <option v-for="ioPin in allowedIoOutputPins" :value="ioPin.pin"
-                                        :disabled="ioPin.disabled"
-                                        v-bind:key="'stepPin'+(ioPin.pin)">{{ioPin.label}}
-                                    {{ioPin.connectedDeviceNames}}
-                                </option>
-                            </select>
-                            <small id="stepPinHelp" class="form-text text-muted">select the IO pin of the ESP that is
-                                connected to the step-pin on the stepper driver board
-                            </small>
-                        </div>
-                        <div class="form-group">
-                            <label for="dirPin">ESP IO pin for direction signal</label>
-                            <select id="dirPin" name="dirPin" class="form-control" v-model="stepperToAdd.dirPin">
-                                <option value="-1" selected>please select an IO pin</option>
-                                <option value="-2" selected>not connected / direction pin is not used</option>
-                                <option v-for="ioPin in allowedIoOutputPins" :value="ioPin.pin"
-                                        :disabled="ioPin.disabled"
-                                        v-bind:key="'dirPin'+(ioPin.pin)">
-                                    {{ioPin.label}} {{ioPin.connectedDeviceNames}}
-                                </option>
-                            </select>
-                            <small id="dirPinHelp" class="form-text text-muted">select the IO pin of the ESP that is
-                                connected to the direction-pin on the stepper driver board
-                            </small>
-                        </div>
-                    </form>
-                </b-modal>
+        <!-- Modal to add new stepper -->
+        <b-modal
+          id="add-stepper"
+          title="Add a new stepper motor configuration"
+          @ok="addStepperConfiguration"
+          ref="addStepperModal"
+        >
+          <form>
+            <div class="form-group">
+              <label for="displayName">Display name for the stepper motor</label>
+              <input
+                type="text"
+                class="form-control"
+                id="displayName"
+                v-model="stepperToAdd.name"
+                placeholder="display name or axis name"
+              />
             </div>
-        </div>
-
-        <position-switch-details
-                v-for="switchConfiguration in configuredSwitches"
-                v-bind:key="'switch-'+switchConfiguration.id"
-                v-bind:switchConfiguration="switchConfiguration"
-                v-on:delete="deleteSwitchConfiguration">
-        </position-switch-details>
-
-        <div class="row pt-3">
-            <div class="col-12">
-                <b-button variant="success" v-b-modal.add-switch>
-                    <font-awesome-icon icon="plus-circle"/>
-                    add limit switch
-                </b-button>
-
-                <!-- Modal to add new switch -->
-                <b-modal id="add-switch"
-                         title="Add a new limit switch configuration"
-                         @ok="addSwitch"
-                         ref="addSwitchModal">
-                    <form>
-                        <div class="form-group">
-                            <label for="positionName">Display name for the switch</label>
-                            <input type="text" class="form-control" id="positionName" v-model="switchToAdd.positionName"
-                                   placeholder="display name for this switch">
-                        </div>
-                        <div class="form-group">
-                            <label for="switchIoPin">ESP IO pin the switch is connected to</label>
-                            <select id="switchIoPin" class="form-control" v-model="switchToAdd.ioPinNumber">
-                                <option value="-1" selected>please select an IO pin</option>
-                                <option v-for="ioPin in allowedIoOutputPins" :value="ioPin.pin"
-                                        :disabled="ioPin.disabled"
-                                        v-bind:key="'switchPin'+ioPin.pin">{{ioPin.label}}
-                                    {{ioPin.connectedDeviceNames}}
-                                </option>
-                            </select>
-                            <small id="switchIoPinHelp" class="form-text text-muted">select the IO pin of the ESP that
-                                is connected to this switch
-                            </small>
-                        </div>
-                        <div class="form-group">
-                            <label for="stepperId">Stepper motor the switch belongs to</label>
-                            <select id="stepperId" class="form-control" v-model="switchToAdd.stepperId">
-                                <option value="-1" selected>please select a stepper motor</option>
-                                <option v-for="stepperConfig in configuredSteppers" :value="stepperConfig.id"
-                                        v-bind:key="'stepper'+stepperConfig.id">
-                                    {{stepperConfig.name}} ({{stepperConfig.id}})
-                                </option>
-                            </select>
-                            <small id="stepperIdHelp" class="form-text text-muted">select the stepper motor to which
-                                this switch should be associated
-                            </small>
-                        </div>
-                        <div class="form-group">
-                            <label for="switchType">Switch type</label>
-                            <select id="switchType" class="form-control" v-model="switchToAdd.switchType">
-                                <option value="-1" selected>please select the type of this switch</option>
-                                <option value="4">homing switch begin/left/bottom</option>
-                                <option value="8">homing switch end/right/top</option>
-                                <option value="16">general position switch</option>
-                                <option value="32">emergency stop switch</option>
-                            </select>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" id="activeHigh"
-                                   v-model="switchToAdd.switchTypeActiveState" v-bind:value="1">
-                            <label class="form-check-label" for="activeHigh">Active-High</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-
-                            <input class="form-check-input" type="radio" id="activeLow"
-                                   v-model="switchToAdd.switchTypeActiveState" v-bind:value="2">
-
-                            <label class="form-check-label" for="activeLow">Active-Low</label>
-                        </div>
-                        <div>
-                            <small id="switchTypeHelp" class="form-text text-muted">Define the type of the limit switch
-                                and its active state
-                            </small>
-                        </div>
-                        <div class="form-group">
-                            <label for="switchPosition">Position (in steps) of the switch or -1 for not specific
-                                position</label>
-                            <input type="number" class="form-control" id="switchPosition"
-                                   v-model="switchToAdd.switchPosition"
-                                   placeholder="position in steps or -1">
-                        </div>
-                    </form>
-                </b-modal>
+            <div class="form-group">
+              <label for="stepPin">ESP IO pin for step signal</label>
+              <select
+                id="stepPin"
+                name="stepPin"
+                class="form-control"
+                v-model="stepperToAdd.stepPin"
+              >
+                <option value="-1" selected>please select an IO pin</option>
+                <option
+                  v-for="ioPin in allowedIoOutputPins"
+                  :value="ioPin.pin"
+                  :disabled="ioPin.disabled"
+                  v-bind:key="'stepPin'+(ioPin.pin)"
+                >
+                  {{ioPin.label}}
+                  {{ioPin.connectedDeviceNames}}
+                </option>
+              </select>
+              <small id="stepPinHelp" class="form-text text-muted">
+                select the IO pin of the ESP that is
+                connected to the step-pin on the stepper driver board
+              </small>
             </div>
-        </div>
-
-        <rotary-encoder-details
-                v-for="encoderConfiguration in configuredEncoders"
-                v-bind:key="'encoder-'+encoderConfiguration.id"
-                v-bind:encoderConfiguration="encoderConfiguration"
-                v-on:delete="deleteRotaryEncoderConfiguration">
-        </rotary-encoder-details>
-
-        <div class="row pt-3">
-            <div class="col-12">
-                <b-button variant="success" v-b-modal.add-encoder>
-                    <font-awesome-icon icon="plus-circle"/>
-                    add rotary encoder
-                </b-button>
-
-                <!-- Modal to add new rotary encoder -->
-                <b-modal id="add-encoder"
-                         title="Add a new rotary encoder configuration"
-                         @ok="addEncoderConfiguration"
-                         ref="addEncoderModal">
-                    <form>
-                        <div class="form-group">
-                            <label for="displayName">Display name for the rotary encoder</label>
-                            <input type="text" class="form-control" id="encoderDisplayName" v-model="encoderToAdd.name"
-                                   placeholder="display name">
-                        </div>
-                        <div class="form-group">
-                            <label for="stepPin">ESP IO pin that is connected to pin A of the rotary encoder</label>
-                            <select id="ioPinA" name="ioPinA" class="form-control" v-model="encoderToAdd.ioPinA">
-                                <option value="-1" selected>please select an IO pin</option>
-                                <option v-for="ioPin in allowedIoOutputPins" :value="ioPin.pin"
-                                        :disabled="ioPin.disabled"
-                                        v-bind:key="'pinA'+(ioPin.pin)">{{ioPin.label}}
-                                    {{ioPin.connectedDeviceNames}}
-                                </option>
-                            </select>
-                            <small id="ioPinAHelp" class="form-text text-muted">select the IO pin of the ESP that is
-                                connected to <strong>pin A</strong> of the rotary encoder</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="ioPinB">ESP IO pin that is connected to pin B of the rotary encoder</label>
-                            <select id="ioPinB" name="ioPinB" class="form-control" v-model="encoderToAdd.ioPinB">
-                                <option value="-1" selected>please select an IO pin</option>
-                                <option v-for="ioPin in allowedIoOutputPins" :value="ioPin.pin"
-                                        :disabled="ioPin.disabled"
-                                        v-bind:key="'pinB'+(ioPin.pin)">{{ioPin.label}}
-                                    {{ioPin.connectedDeviceNames}}
-                                </option>
-                            </select>
-                            <small id="ioPinBHelp" class="form-text text-muted">select the IO pin of the ESP that is
-                                connected to <strong>pin B</strong> of the rotary encoder</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="encoderMultuplier">Step Multiplier value</label>
-                            <input type="number" class="form-control" id="encoderMultuplier" v-model="encoderToAdd.stepMultiplier" min="1" max="18446744073709551615">
-                            <small id="stepMultiplierHelp" class="form-text text-muted">set a multiplier that defines how many steps the stepper motor should move when the rotary encoder is turned by one step
-                            </small>
-                        </div>
-                    </form>
-                </b-modal>
+            <div class="form-group">
+              <label for="dirPin">ESP IO pin for direction signal</label>
+              <select id="dirPin" name="dirPin" class="form-control" v-model="stepperToAdd.dirPin">
+                <option value="-1" selected>please select an IO pin</option>
+                <option value="-2" selected>not connected / direction pin is not used</option>
+                <option
+                  v-for="ioPin in allowedIoOutputPins"
+                  :value="ioPin.pin"
+                  :disabled="ioPin.disabled"
+                  v-bind:key="'dirPin'+(ioPin.pin)"
+                >{{ioPin.label}} {{ioPin.connectedDeviceNames}}</option>
+              </select>
+              <small id="dirPinHelp" class="form-text text-muted">
+                select the IO pin of the ESP that is
+                connected to the direction-pin on the stepper driver board
+              </small>
             </div>
-        </div>
+          </form>
+        </b-modal>
+      </div>
     </div>
+
+    <position-switch-details
+      v-for="switchConfiguration in configuredSwitches"
+      v-bind:key="'switch-'+switchConfiguration.id"
+      v-bind:switchConfiguration="switchConfiguration"
+      v-on:delete="deleteSwitchConfiguration"
+    ></position-switch-details>
+
+    <div class="row pt-3">
+      <div class="col-12">
+        <b-button variant="success" v-b-modal.add-switch>
+          <font-awesome-icon icon="plus-circle" />add limit switch
+        </b-button>
+
+        <!-- Modal to add new switch -->
+        <b-modal
+          id="add-switch"
+          title="Add a new limit switch configuration"
+          @ok="addSwitch"
+          ref="addSwitchModal"
+        >
+          <form>
+            <div class="form-group">
+              <label for="positionName">Display name for the switch</label>
+              <input
+                type="text"
+                class="form-control"
+                id="positionName"
+                v-model="switchToAdd.positionName"
+                placeholder="display name for this switch"
+              />
+            </div>
+            <div class="form-group">
+              <label for="switchIoPin">ESP IO pin the switch is connected to</label>
+              <select id="switchIoPin" class="form-control" v-model="switchToAdd.ioPinNumber">
+                <option value="-1" selected>please select an IO pin</option>
+                <option
+                  v-for="ioPin in allowedIoOutputPins"
+                  :value="ioPin.pin"
+                  :disabled="ioPin.disabled"
+                  v-bind:key="'switchPin'+ioPin.pin"
+                >
+                  {{ioPin.label}}
+                  {{ioPin.connectedDeviceNames}}
+                </option>
+              </select>
+              <small id="switchIoPinHelp" class="form-text text-muted">
+                select the IO pin of the ESP that
+                is connected to this switch
+              </small>
+            </div>
+            <div class="form-group">
+              <label for="stepperId">Stepper motor the switch belongs to</label>
+              <select id="stepperId" class="form-control" v-model="switchToAdd.stepperId">
+                <option value="-1" selected>please select a stepper motor</option>
+                <option
+                  v-for="stepperConfig in configuredSteppers"
+                  :value="stepperConfig.id"
+                  v-bind:key="'stepper'+stepperConfig.id"
+                >{{stepperConfig.name}} ({{stepperConfig.id}})</option>
+              </select>
+              <small id="stepperIdHelp" class="form-text text-muted">
+                select the stepper motor to which
+                this switch should be associated
+              </small>
+            </div>
+            <div class="form-group">
+              <label for="switchType">Switch type</label>
+              <select id="switchType" class="form-control" v-model="switchToAdd.switchType">
+                <option value="-1" selected>please select the type of this switch</option>
+                <option value="4">homing switch begin/left/bottom</option>
+                <option value="8">homing switch end/right/top</option>
+                <option value="16">general position switch</option>
+                <option value="32">emergency stop switch</option>
+              </select>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                id="activeHigh"
+                v-model="switchToAdd.switchTypeActiveState"
+                v-bind:value="1"
+              />
+              <label class="form-check-label" for="activeHigh">Active-High</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                id="activeLow"
+                v-model="switchToAdd.switchTypeActiveState"
+                v-bind:value="2"
+              />
+
+              <label class="form-check-label" for="activeLow">Active-Low</label>
+            </div>
+            <div>
+              <small id="switchTypeHelp" class="form-text text-muted">
+                Define the type of the limit switch
+                and its active state
+              </small>
+            </div>
+            <div class="form-group">
+              <label for="switchPosition">
+                Position (in steps) of the switch or -1 for not specific
+                position
+              </label>
+              <input
+                type="number"
+                class="form-control"
+                id="switchPosition"
+                v-model="switchToAdd.switchPosition"
+                placeholder="position in steps or -1"
+              />
+            </div>
+          </form>
+        </b-modal>
+      </div>
+    </div>
+
+    <rotary-encoder-details
+      v-for="encoderConfiguration in configuredEncoders"
+      v-bind:key="'encoder-'+encoderConfiguration.id"
+      v-bind:encoderConfiguration="encoderConfiguration"
+      v-on:delete="deleteRotaryEncoderConfiguration"
+    ></rotary-encoder-details>
+
+    <div class="row pt-3">
+      <div class="col-12">
+        <b-button variant="success" v-b-modal.add-encoder>
+          <font-awesome-icon icon="plus-circle" />add rotary encoder
+        </b-button>
+
+        <!-- Modal to add new rotary encoder -->
+        <b-modal
+          id="add-encoder"
+          title="Add a new rotary encoder configuration"
+          @ok="addEncoderConfiguration"
+          ref="addEncoderModal"
+        >
+          <form>
+            <div class="form-group">
+              <label for="displayName">Display name for the rotary encoder</label>
+              <input
+                type="text"
+                class="form-control"
+                id="encoderDisplayName"
+                v-model="encoderToAdd.name"
+                placeholder="display name"
+              />
+            </div>
+            <div class="form-group">
+              <label for="stepPin">ESP IO pin that is connected to pin A of the rotary encoder</label>
+              <select id="ioPinA" name="ioPinA" class="form-control" v-model="encoderToAdd.ioPinA">
+                <option value="-1" selected>please select an IO pin</option>
+                <option
+                  v-for="ioPin in allowedIoOutputPins"
+                  :value="ioPin.pin"
+                  :disabled="ioPin.disabled"
+                  v-bind:key="'pinA'+(ioPin.pin)"
+                >
+                  {{ioPin.label}}
+                  {{ioPin.connectedDeviceNames}}
+                </option>
+              </select>
+              <small id="ioPinAHelp" class="form-text text-muted">
+                select the IO pin of the ESP that is
+                connected to
+                <strong>pin A</strong> of the rotary encoder
+              </small>
+            </div>
+            <div class="form-group">
+              <label for="ioPinB">ESP IO pin that is connected to pin B of the rotary encoder</label>
+              <select id="ioPinB" name="ioPinB" class="form-control" v-model="encoderToAdd.ioPinB">
+                <option value="-1" selected>please select an IO pin</option>
+                <option
+                  v-for="ioPin in allowedIoOutputPins"
+                  :value="ioPin.pin"
+                  :disabled="ioPin.disabled"
+                  v-bind:key="'pinB'+(ioPin.pin)"
+                >
+                  {{ioPin.label}}
+                  {{ioPin.connectedDeviceNames}}
+                </option>
+              </select>
+              <small id="ioPinBHelp" class="form-text text-muted">
+                select the IO pin of the ESP that is
+                connected to
+                <strong>pin B</strong> of the rotary encoder
+              </small>
+            </div>
+            <div class="form-group">
+              <label for="encoderMultuplier">Step Multiplier value</label>
+              <input
+                type="number"
+                class="form-control"
+                id="encoderMultuplier"
+                v-model="encoderToAdd.stepMultiplier"
+                min="1"
+                max="18446744073709551615"
+              />
+              <small
+                id="stepMultiplierHelp"
+                class="form-text text-muted"
+              >set a multiplier that defines how many steps the stepper motor should move when the rotary encoder is turned by one step</small>
+            </div>
+          </form>
+        </b-modal>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style>
-
 </style>
 
 <script>
-    import {ApiService} from '../services/ApiService';
-    import StepperMotorDetails from '../components/StepperMotorDetails'
-    import PositionSwitchDetails from '../components/PositionSwitchDetails'
-    import BButton from 'bootstrap-vue/es/components/button/button';
-    import RotaryEncoderDetails from "../components/RotaryEncoderDetails";
+/* eslint-disable no-console */
+import { ApiService } from "../services/ApiService";
+import StepperMotorDetails from "../components/StepperMotorDetails";
+import PositionSwitchDetails from "../components/PositionSwitchDetails";
+import BButton from "bootstrap-vue/es/components/button/button";
+import RotaryEncoderDetails from "../components/RotaryEncoderDetails";
 
-    const apiService = new ApiService();
+const apiService = new ApiService();
 
-    export default {
-        name: 'setup',
-        data: function () {
-            return {
-                stepperToAdd: {
-                    stepPin: -1,
-                    dirPin: -1,
-                    name: ""
-                },
-                switchToAdd: {
-                    stepperId: -1,
-                    ioPinNumber: -1,
-                    positionName: "",
-                    switchPosition: -1,
-                    switchType: -1,
-                    switchTypeActiveState: -1
-                },
-                encoderToAdd: {
-                    name: "",
-                    id: -1,
-                    ioPinA: -1,
-                    ioPinB: -1,
-                    stepperId: -1,
-                    stepMultiplier: 1
-                },
-                configuredSteppers: [],
-                configuredSwitches: [],
-                configuredEncoders: [],
-                allowedIoOutputPins: [
-                    {
-                        pin: 0,
-                        disabled: false,
-                        label: "GPIO 0",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 1,
-                        disabled: false,
-                        label: "GPIO 1",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 2,
-                        disabled: false,
-                        label: "GPIO 2",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 3,
-                        disabled: false,
-                        label: "GPIO 3",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 4,
-                        disabled: false,
-                        label: "GPIO 4",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 5,
-                        disabled: false,
-                        label: "GPIO 5",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 12,
-                        disabled: false,
-                        label: "GPIO 12",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 13,
-                        disabled: false,
-                        label: "GPIO 13",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 14,
-                        disabled: false,
-                        label: "GPIO 14",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 15,
-                        disabled: false,
-                        label: "GPIO 15",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 16,
-                        disabled: false,
-                        label: "GPIO 16",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 17,
-                        disabled: false,
-                        label: "GPIO 17",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 18,
-                        disabled: false,
-                        label: "GPIO 18",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 19,
-                        disabled: false,
-                        label: "GPIO 19",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 21,
-                        disabled: false,
-                        label: "GPIO 21",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 22,
-                        disabled: false,
-                        label: "GPIO 22",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 23,
-                        disabled: false,
-                        label: "GPIO 23",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 25,
-                        disabled: false,
-                        label: "GPIO 25",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 26,
-                        disabled: false,
-                        label: "GPIO 26",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 27,
-                        disabled: false,
-                        label: "GPIO 27",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 32,
-                        disabled: false,
-                        label: "GPIO 32",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 33,
-                        disabled: false,
-                        label: "GPIO 33",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 34,
-                        disabled: false,
-                        label: "GPIO 34",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 35,
-                        disabled: false,
-                        label: "GPIO 35",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 36,
-                        disabled: false,
-                        label: "GPIO 36",
-                        connectedDeviceNames: ""
-                    },
-                    {
-                        pin: 39,
-                        disabled: false,
-                        label: "GPIO 39",
-                        connectedDeviceNames: ""
-                    }
-                ]
+export default {
+  name: "setup",
+  data: function() {
+    return {
+      stepperToAdd: {
+        stepPin: -1,
+        dirPin: -1,
+        name: ""
+      },
+      switchToAdd: {
+        stepperId: -1,
+        ioPinNumber: -1,
+        positionName: "",
+        switchPosition: -1,
+        switchType: -1,
+        switchTypeActiveState: -1
+      },
+      encoderToAdd: {
+        name: "",
+        id: -1,
+        ioPinA: -1,
+        ioPinB: -1,
+        stepperId: -1,
+        stepMultiplier: 1
+      },
+      configuredSteppers: [],
+      configuredSwitches: [],
+      configuredEncoders: [],
+      allowedIoOutputPins: [
+        {
+          pin: 0,
+          disabled: false,
+          label: "GPIO 0",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 1,
+          disabled: false,
+          label: "GPIO 1",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 2,
+          disabled: false,
+          label: "GPIO 2",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 3,
+          disabled: false,
+          label: "GPIO 3",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 4,
+          disabled: false,
+          label: "GPIO 4",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 5,
+          disabled: false,
+          label: "GPIO 5",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 12,
+          disabled: false,
+          label: "GPIO 12",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 13,
+          disabled: false,
+          label: "GPIO 13",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 14,
+          disabled: false,
+          label: "GPIO 14",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 15,
+          disabled: false,
+          label: "GPIO 15",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 16,
+          disabled: false,
+          label: "GPIO 16",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 17,
+          disabled: false,
+          label: "GPIO 17",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 18,
+          disabled: false,
+          label: "GPIO 18",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 19,
+          disabled: false,
+          label: "GPIO 19",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 21,
+          disabled: false,
+          label: "GPIO 21",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 22,
+          disabled: false,
+          label: "GPIO 22",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 23,
+          disabled: false,
+          label: "GPIO 23",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 25,
+          disabled: false,
+          label: "GPIO 25",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 26,
+          disabled: false,
+          label: "GPIO 26",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 27,
+          disabled: false,
+          label: "GPIO 27",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 32,
+          disabled: false,
+          label: "GPIO 32",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 33,
+          disabled: false,
+          label: "GPIO 33",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 34,
+          disabled: false,
+          label: "GPIO 34",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 35,
+          disabled: false,
+          label: "GPIO 35",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 36,
+          disabled: false,
+          label: "GPIO 36",
+          connectedDeviceNames: ""
+        },
+        {
+          pin: 39,
+          disabled: false,
+          label: "GPIO 39",
+          connectedDeviceNames: ""
+        }
+      ]
+    };
+  },
+  components: {
+    BButton,
+    StepperMotorDetails,
+    PositionSwitchDetails,
+    RotaryEncoderDetails
+  },
+  methods: {
+    setPinUsedByInfo(pinNumber, usedByString) {
+      this.allowedIoOutputPins.forEach(pinObject => {
+        if (pinObject.pin === pinNumber) {
+          pinObject.connectedDeviceNames =
+            pinObject.connectedDeviceNames + "(" + usedByString + ")";
+          pinObject.disabled = true;
+        }
+      });
+    },
+    getConfiguredSteppers() {
+      apiService.getConfiguredStepperMotors().then(data => {
+        if (data) {
+          this.configuredSteppers = data.filter(function(stepper) {
+            return stepper.configured == "true";
+          });
+
+          this.configuredSteppers.forEach(value => {
+            if (value.stepPin >= 0) {
+              this.setPinUsedByInfo(value.stepPin, value.name + " step-pin");
             }
-        },
-        components: {
-            BButton,
-            StepperMotorDetails,
-            PositionSwitchDetails,
-            RotaryEncoderDetails
-        },
-        methods: {
-            setPinUsedByInfo(pinNumber, usedByString) {
-                this.allowedIoOutputPins.forEach((pinObject) => {
-                    if (pinObject.pin === pinNumber) {
-                        pinObject.connectedDeviceNames = pinObject.connectedDeviceNames + '(' + usedByString + ')';
-                        pinObject.disabled = true;
-                    }
-                });
-            },
-            getConfiguredSteppers() {
-                apiService.getConfiguredStepperMotors().then((data) => {
-                    if (data) {
-                        this.configuredSteppers = data.filter(function (stepper) {
-                            return stepper.configured == "true"
-                        });
-
-                        this.configuredSteppers.forEach((value) => {
-                            if (value.stepPin >= 0) {
-                                this.setPinUsedByInfo(value.stepPin, value.name + ' step-pin');
-                            }
-                            if (value.dirPin >= 0) {
-                                this.setPinUsedByInfo(value.dirPin, value.name + ' direction-pin');
-                            }
-                            console.log(value);
-                        });
-                    }
-                });
-            },
-            getConfiguredSwitches() {
-                apiService.getConfiguredPositionSwitches().then((data) => {
-                    if (data) {
-                        this.configuredSwitches = data.filter(function (configuredSwitch) {
-                            return configuredSwitch.name != null;
-                        });
-
-                        this.configuredSwitches.forEach((configuredSwitch) => {
-                            if (configuredSwitch.pin >= 0) {
-                                this.setPinUsedByInfo(configuredSwitch.pin, configuredSwitch.name + ' switch');
-                            }
-                            console.log(configuredSwitch);
-                        });
-                    }
-                });
-            },
-            getConfiguredRotaryEncoders() {
-                //DUMMY
-                console.log("populating dummy encoders");
-                this.configuredEncoders = [
-                    {
-                        name: "encoder 1",
-                        id: 0,
-                        ioPinA: 1,
-                        ioPinB: 2,
-                        stepperId: 0,
-                        stepperName: "X-Axis"
-                    },
-                    {
-                        name: "encoder 2",
-                        id: 1,
-                        ioPinA: 15,
-                        ioPinB: 16,
-                        stepperId: 1,
-                        stepperName: "Y-Axis"
-                    }
-                ];
-
-                this.configuredEncoders.forEach((configuredEncoder) => {
-                    if (configuredEncoder.ioPinA >= 0) {
-                        this.setPinUsedByInfo(configuredEncoder.ioPinA, configuredEncoder.name + ' encoder pin A');
-                    }
-                    if (configuredEncoder.ioPinB >= 0) {
-                        this.setPinUsedByInfo(configuredEncoder.ioPinB, configuredEncoder.name + ' encoder pin B');
-                    }
-                    console.log(configuredEncoder);
-                });
-            },
-            addStepperConfiguration(bvModalEvt) {
-                // Prevent modal from closing
-                bvModalEvt.preventDefault();
-                if (this.stepperToAdd.name == "") {
-                    alert('Please enter a name for the new stepper motor');
-                } else if (this.stepperToAdd.stepPin == -1) {
-                    alert('Please select the step IO pin');
-                } else if (this.stepperToAdd.dirPin == -1) {
-                    alert('Please select the direction IO pin');
-                } else {
-                    apiService.addStepperMotor(this.stepperToAdd.stepPin, this.stepperToAdd.dirPin, this.stepperToAdd.name).then(() => {
-                        this.getConfiguredSteppers();
-                        this.$refs['addStepperModal'].hide();
-                        this.stepperToAdd.stepPin = -1;
-                        this.stepperToAdd.dirPin = -1;
-                        this.stepperToAdd.name = "";
-                    }, (error) => {
-                        alert("An error occurred while trying to add the new stepper:\n" + error.response.data.error);
-                    });
-                }
-            },
-            addSwitch(bvModalEvt) {
-                // Prevent modal from closing
-                bvModalEvt.preventDefault();
-                if (this.switchToAdd.positionName == "") {
-                    alert('Please enter a name for the new switch');
-                } else if (this.switchToAdd.ioPinNumber == -1) {
-                    alert('Please select the IO pin the switch is connected to');
-                } else if (this.switchToAdd.stepperId == -1) {
-                    alert('Please select the stepper motor this switch is used for');
-                } else if (this.switchToAdd.switchPosition == "") {
-                    alert('Please select the position of this switch or -1 for no specific position');
-                } else if (this.switchToAdd.switchType == -1) {
-                    alert('Please select the type of this switch');
-                } else if (this.switchToAdd.switchTypeActiveState == "") {
-                    alert('Please select the active state of the switch');
-                } else {
-                    let switchTypeBitMask = this.switchToAdd.switchType + this.switchToAdd.switchTypeActiveState;
-                    apiService.addPositionSwitch(this.switchToAdd.stepperId, this.switchToAdd.ioPinNumber, this.switchToAdd.positionName, this.switchToAdd.switchPosition, switchTypeBitMask).then(() => {
-                        this.getConfiguredSwitches();
-                        this.$refs['addSwitchModal'].hide();
-                        this.switchToAdd.stepperId = -1;
-                        this.switchToAdd.ioPinNumber = -1;
-                        this.switchToAdd.positionName = "";
-                        this.switchToAdd.switchPosition = -1;
-                        this.switchToAdd.switchType = -1;
-                        this.switchToAdd.switchTypeActiveState = "";
-                    }, (error) => {
-                        alert("An error occurred while trying to add the new stepper:\n" + error.response.data.error);
-                    });
-                }
-            },
-            addEncoderConfiguration(bvModalEvt) {
-                // Prevent modal from closing
-                bvModalEvt.preventDefault();
-                if (this.encoderToAdd.name == "") {
-                    alert('Please enter a name for the new stepper motor');
-                } else if (this.encoderToAdd.stepPin == -1) {
-                    alert('Please select the step IO pin');
-                } else if (this.encoderToAdd.dirPin == -1) {
-                    alert('Please select the direction IO pin');
-                } else {
-                    apiService.addStepperMotor(this.encoderToAdd.stepPin, this.encoderToAdd.dirPin, this.encoderToAdd.name).then(() => {
-                        this.getConfiguredSteppers();
-                        this.$refs['addStepperModal'].hide();
-                        this.encoderToAdd.stepPin = -1;
-                        this.encoderToAdd.dirPin = -1;
-                        this.encoderToAdd.name = "";
-                    }, (error) => {
-                        alert("An error occurred while trying to add the new rotary encoder:\n" + error.response.data.error);
-                    });
-                }
-            },
-            deleteStepperConfiguration(id) {
-                apiService.deleteStepperMotor(id).then(
-                    () => {
-                        this.configuredSteppers = this.configuredSteppers.filter(function (stepper) {
-                            return stepper.id != id;
-                        })
-                    },
-                    (error) => {
-                        alert("An error occurred while trying to delete the stepper configuration:\n" + error.response.data.error);
-                    }
-                );
-            },
-            deleteSwitchConfiguration(id) {
-                apiService.deletePositionSwitch(id).then(
-                    () => {
-                        this.configuredSwitches = this.configuredSwitches.filter(function (positionSwitch) {
-                            return positionSwitch.id != id;
-                        })
-                    },
-                    (error) => {
-                        alert("An error occurred while trying to delete the switch:\n" + error.response.data.error);
-                    }
-                );
-            },
-            deleteRotaryEncoderConfiguration(id) {
-                apiService.deleteRotaryEncoder(id).then(
-                    () => {
-                        this.configuredEncoders = this.configuredEncoders.filter(function (rotaryEncoder) {
-                            return rotaryEncoder.id != id;
-                        })
-                    },
-                    (error) => {
-                        alert("An error occurred while trying to delete the rotary encoder:\n" + error.response.data.error);
-                    }
-                );
+            if (value.dirPin >= 0) {
+              this.setPinUsedByInfo(
+                value.dirPin,
+                value.name + " direction-pin"
+              );
             }
+            console.log(value);
+          });
+        }
+      });
+    },
+    getConfiguredSwitches() {
+      apiService.getConfiguredPositionSwitches().then(data => {
+        if (data) {
+          this.configuredSwitches = data.filter(function(configuredSwitch) {
+            return configuredSwitch.name != null;
+          });
+
+          this.configuredSwitches.forEach(configuredSwitch => {
+            if (configuredSwitch.pin >= 0) {
+              this.setPinUsedByInfo(
+                configuredSwitch.pin,
+                configuredSwitch.name + " switch"
+              );
+            }
+            console.log(configuredSwitch);
+          });
+        }
+      });
+    },
+    getConfiguredRotaryEncoders() {
+      //DUMMY
+      console.log("populating dummy encoders");
+      this.configuredEncoders = [
+        {
+          name: "encoder 1",
+          id: 0,
+          ioPinA: 1,
+          ioPinB: 2,
+          stepperId: 0,
+          stepperName: "X-Axis"
         },
-        mounted() {
-            this.getConfiguredSteppers();
-            this.getConfiguredSwitches();
-            this.getConfiguredRotaryEncoders();
+        {
+          name: "encoder 2",
+          id: 1,
+          ioPinA: 15,
+          ioPinB: 16,
+          stepperId: 1,
+          stepperName: "Y-Axis"
+        }
+      ];
+
+      this.configuredEncoders.forEach(configuredEncoder => {
+        if (configuredEncoder.ioPinA >= 0) {
+          this.setPinUsedByInfo(
+            configuredEncoder.ioPinA,
+            configuredEncoder.name + " encoder pin A"
+          );
+        }
+        if (configuredEncoder.ioPinB >= 0) {
+          this.setPinUsedByInfo(
+            configuredEncoder.ioPinB,
+            configuredEncoder.name + " encoder pin B"
+          );
+        }
+        // eslint-disable-next-line no-console
+        console.log(configuredEncoder);
+      });
+    },
+    addStepperConfiguration(bvModalEvt) {
+      // Prevent modal from closing
+      bvModalEvt.preventDefault();
+      if (this.stepperToAdd.name == "") {
+        alert("Please enter a name for the new stepper motor");
+      } else if (this.stepperToAdd.stepPin == -1) {
+        alert("Please select the step IO pin");
+      } else if (this.stepperToAdd.dirPin == -1) {
+        alert("Please select the direction IO pin");
+      } else {
+        apiService
+          .addStepperMotor(
+            this.stepperToAdd.stepPin,
+            this.stepperToAdd.dirPin,
+            this.stepperToAdd.name
+          )
+          .then(
+            () => {
+              this.getConfiguredSteppers();
+              this.$refs["addStepperModal"].hide();
+              this.stepperToAdd.stepPin = -1;
+              this.stepperToAdd.dirPin = -1;
+              this.stepperToAdd.name = "";
+            },
+            error => {
+              alert(
+                "An error occurred while trying to add the new stepper:\n" +
+                  error.response.data.error
+              );
+            }
+          );
+      }
+    },
+    addSwitch(bvModalEvt) {
+      // Prevent modal from closing
+      bvModalEvt.preventDefault();
+      if (this.switchToAdd.positionName == "") {
+        alert("Please enter a name for the new switch");
+      } else if (this.switchToAdd.ioPinNumber == -1) {
+        alert("Please select the IO pin the switch is connected to");
+      } else if (this.switchToAdd.stepperId == -1) {
+        alert("Please select the stepper motor this switch is used for");
+      } else if (this.switchToAdd.switchPosition == "") {
+        alert(
+          "Please select the position of this switch or -1 for no specific position"
+        );
+      } else if (this.switchToAdd.switchType == -1) {
+        alert("Please select the type of this switch");
+      } else if (this.switchToAdd.switchTypeActiveState == "") {
+        alert("Please select the active state of the switch");
+      } else {
+        let switchTypeBitMask =
+          this.switchToAdd.switchType + this.switchToAdd.switchTypeActiveState;
+        apiService
+          .addPositionSwitch(
+            this.switchToAdd.stepperId,
+            this.switchToAdd.ioPinNumber,
+            this.switchToAdd.positionName,
+            this.switchToAdd.switchPosition,
+            switchTypeBitMask
+          )
+          .then(
+            () => {
+              this.getConfiguredSwitches();
+              this.$refs["addSwitchModal"].hide();
+              this.switchToAdd.stepperId = -1;
+              this.switchToAdd.ioPinNumber = -1;
+              this.switchToAdd.positionName = "";
+              this.switchToAdd.switchPosition = -1;
+              this.switchToAdd.switchType = -1;
+              this.switchToAdd.switchTypeActiveState = "";
+            },
+            error => {
+              alert(
+                "An error occurred while trying to add the new stepper:\n" +
+                  error.response.data.error
+              );
+            }
+          );
+      }
+    },
+    addEncoderConfiguration(bvModalEvt) {
+      // Prevent modal from closing
+      bvModalEvt.preventDefault();
+      if (this.encoderToAdd.name == "") {
+        alert("Please enter a name for the new stepper motor");
+      } else if (this.encoderToAdd.stepPin == -1) {
+        alert("Please select the step IO pin");
+      } else if (this.encoderToAdd.dirPin == -1) {
+        alert("Please select the direction IO pin");
+      } else {
+        apiService
+          .addStepperMotor(
+            this.encoderToAdd.stepPin,
+            this.encoderToAdd.dirPin,
+            this.encoderToAdd.name
+          )
+          .then(
+            () => {
+              this.getConfiguredSteppers();
+              this.$refs["addStepperModal"].hide();
+              this.encoderToAdd.stepPin = -1;
+              this.encoderToAdd.dirPin = -1;
+              this.encoderToAdd.name = "";
+            },
+            error => {
+              alert(
+                "An error occurred while trying to add the new rotary encoder:\n" +
+                  error.response.data.error
+              );
+            }
+          );
+      }
+    },
+    deleteStepperConfiguration(id) {
+      apiService.deleteStepperMotor(id).then(
+        () => {
+          this.configuredSteppers = this.configuredSteppers.filter(function(
+            stepper
+          ) {
+            return stepper.id != id;
+          });
         },
+        error => {
+          alert(
+            "An error occurred while trying to delete the stepper configuration:\n" +
+              error.response.data.error
+          );
+        }
+      );
+    },
+    deleteSwitchConfiguration(id) {
+      apiService.deletePositionSwitch(id).then(
+        () => {
+          this.configuredSwitches = this.configuredSwitches.filter(function(
+            positionSwitch
+          ) {
+            return positionSwitch.id != id;
+          });
+        },
+        error => {
+          alert(
+            "An error occurred while trying to delete the switch:\n" +
+              error.response.data.error
+          );
+        }
+      );
+    },
+    deleteRotaryEncoderConfiguration(id) {
+      apiService.deleteRotaryEncoder(id).then(
+        () => {
+          this.configuredEncoders = this.configuredEncoders.filter(function(
+            rotaryEncoder
+          ) {
+            return rotaryEncoder.id != id;
+          });
+        },
+        error => {
+          alert(
+            "An error occurred while trying to delete the rotary encoder:\n" +
+              error.response.data.error
+          );
+        }
+      );
     }
+  },
+  mounted() {
+    this.getConfiguredSteppers();
+    this.getConfiguredSwitches();
+    this.getConfiguredRotaryEncoders();
+  }
+};
 </script>

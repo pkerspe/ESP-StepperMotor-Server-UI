@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from './router'
 
 // BOOTSTRAP
-import {Layout, Modal} from 'bootstrap-vue/es/components'
+import { Layout, Modal } from 'bootstrap-vue/es/components'
 
 Vue.use(Layout)
 Vue.use(Modal)
@@ -14,7 +14,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import './ext/shards-dashboards.1.1.0.css'
 
 // FONT AWESOME
-import {library} from '@fortawesome/fontawesome-svg-core'
+import { library } from '@fortawesome/fontawesome-svg-core'
 import {
     faCogs,
     faGamepad,
@@ -32,7 +32,7 @@ import {
     faFastBackward,
     faDotCircle
 } from '@fortawesome/free-solid-svg-icons'
-import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 library.add([faCogs, faGamepad, faInfoCircle, faTachometerAlt, faBars, faTimes, faPlusCircle, faTrash, faPen, faStop, faForward, faFastForward, faBackward, faFastBackward, faDotCircle])
 Vue.component('font-awesome-icon', FontAwesomeIcon)

@@ -7,8 +7,9 @@
                         <img src="../assets/logo.svg" style="width: 100%;"/>
                     </div>
                     <div class="col-md-8">
-                        <p>ESP-StepperMotion-Server, UI version: {{versionNumber}}<br/>
-                            REST API version: {{restApiVersionNumber}}<br/>
+                        <p><strong>ESP-StepperMotion-Server</strong><br/>
+                            UI version: {{versionNumber}}<br/>
+                            Server version: {{restApiVersionNumber}}<br/>
                             Copyright (c) 2019 Paul Kerspe - Licensed under the <a
                                     href="https://github.com/pkerspe/ESP-StepperMotor-Server/blob/master/LICENSE.txt"
                                     target="_blank">MIT license</a>.</p>
@@ -47,7 +48,7 @@
         name: 'about',
         data: function () {
             return {
-                versionNumber: "1.0.0",
+                versionNumber: window.serverUIVersion,
                 restApiVersionNumber: ""
             }
         },

@@ -2,18 +2,17 @@ import axios from 'axios';
 import steppersMock from './mock_responses/steppers';
 import switchesMock from './mock_responses/steppers';
 
-const API_URL = 'http://192.168.0.19';
-const mock = true;
+const API_URL = process.env.VUE_APP_REST_API_BASE_URL;
+const mock = false;
 
 export class ApiService {
-    constructor() {
-    }
+    constructor() {}
 
     getConfiguredStepperMotors() {
         const url = `${API_URL}/api/steppers`;
         if (mock) {
             var p1 = new Promise(
-                function (resolve) {
+                function(resolve) {
                     resolve(steppersMock.steppers);
                 });
             return p1;
@@ -38,23 +37,23 @@ export class ApiService {
         return axios.post(url, params).then(response => response.data);
     }
 
-    moveStepperBySteps(stepperId, steps, speed, accell){
-        const url = `${API_URL}/api/steppers/moveby?id=`+stepperId+'&value='+steps+'&unit=steps&speed='+speed+"&accell="+accell;
+    moveStepperBySteps(stepperId, steps, speed, accell) {
+        const url = `${API_URL}/api/steppers/moveby?id=` + stepperId + '&value=' + steps + '&unit=steps&speed=' + speed + "&accell=" + accell;
         return axios.post(url).then(response => response.data);
     }
 
-    moveStepperByRevs(stepperId, revs){
-        const url = `${API_URL}/api/steppers/moveby?id=`+stepperId+'&value='+revs+'&unit=revs';
+    moveStepperByRevs(stepperId, revs) {
+        const url = `${API_URL}/api/steppers/moveby?id=` + stepperId + '&value=' + revs + '&unit=revs';
         return axios.post(url).then(response => response.data);
     }
 
-    moveStepperByMilimeter(stepperId, mm){
-        const url = `${API_URL}/api/steppers/moveby?id=`+stepperId+'&value='+mm+'&unit=mm';
+    moveStepperByMilimeter(stepperId, mm) {
+        const url = `${API_URL}/api/steppers/moveby?id=` + stepperId + '&value=' + mm + '&unit=mm';
         return axios.post(url).then(response => response.data);
     }
 
     deleteStepperMotor(stepperId) {
-        const url = `${API_URL}/api/steppers?id=`+stepperId;
+        const url = `${API_URL}/api/steppers?id=` + stepperId;
         return axios.delete(url).then(response => response.data);
     }
 
@@ -74,7 +73,7 @@ export class ApiService {
         const url = `${API_URL}/api/switches`;
         if (mock) {
             var p1 = new Promise(
-                function (resolve) {
+                function(resolve) {
                     resolve(switchesMock.switches);
                 });
             return p1;
@@ -84,12 +83,12 @@ export class ApiService {
     }
 
     deletePositionSwitch(switchId) {
-        const url = `${API_URL}/api/switches?id=`+switchId;
+        const url = `${API_URL}/api/switches?id=` + switchId;
         return axios.delete(url).then(response => response.data);
     }
 
     deleteRotaryEncoder(encoderId) {
-        const url = `${API_URL}/api/encoders?id=`+encoderId;
+        const url = `${API_URL}/api/encoders?id=` + encoderId;
         return axios.delete(url).then(response => response.data);
     }
 
@@ -97,12 +96,16 @@ export class ApiService {
         const url = `${API_URL}/api/status`;
         if (mock) {
             var p1 = new Promise(
-                function (resolve) {
+                function(resolve) {
                     resolve(switchesMock.status);
                 });
             return p1;
         } else {
-            return axios.get(url).then(response => response.data);
+            return axios({
+                method: 'get',
+                url: url,
+                timeout: 2000
+            }).then(response => response.data);
         }
     }
 
