@@ -9,26 +9,27 @@
         "prepareExampleDistPackageForESP": "rm -rf data && mkdir data && cp -R dist/* data/ && rm -rf data/js/*.js && rm -rf data/js/*.map* && sed -i '' \"s/app\\.js/app\\.js\\.gz/g\" data/index.html && sed -i '' \"s/#VERSION#/$npm_package_version/g\" data/index.html"
     },
     "dependencies": {
-        "core-js": "^2.6.5",
-        "vue": "^2.6.6",
-        "vue-router": "^3.0.1",
+        "core-js": "^3.6.5",
+        "vue": "^2.6.11",
+        "vue-router": "^3.2.0",
         "toastr": "^2.1.4",
         "vue-toastr-2": "0.0.10",
-        "bootstrap-vue": "^2.0.0-rc.18",
-        "bootstrap": "^4.3.1",
-        "@fortawesome/fontawesome-svg-core": "^1.2.17",
-        "@fortawesome/free-solid-svg-icons": "^5.8.1",
-        "@fortawesome/vue-fontawesome": "^0.1.6",
-        "axios": "^0.18.0"
+        "bootstrap-vue": "2.0.0-rc.18",
+        "bootstrap": "^4.5.0",
+        "popper.js": "1.16.1",
+        "@fortawesome/fontawesome-svg-core": "^1.2.28",
+        "@fortawesome/free-solid-svg-icons": "^5.13.0",
+        "@fortawesome/vue-fontawesome": "^0.1.9",
+        "axios": "^0.19.2"
     },
     "devDependencies": {
-        "@vue/cli-plugin-babel": "^3.5.0",
-        "@vue/cli-plugin-eslint": "^3.5.0",
-        "@vue/cli-service": "^3.5.0",
-        "babel-eslint": "^10.0.1",
-        "eslint": "^5.8.0",
-        "eslint-plugin-vue": "^5.0.0",
-        "vue-template-compiler": "^2.5.21",
+        "@vue/cli-plugin-babel": "^4.3.1",
+        "@vue/cli-plugin-eslint": "^4.3.1",
+        "@vue/cli-service": "^4.3.1",
+        "babel-eslint": "^10.1.0",
+        "eslint": "^6.8.0",
+        "eslint-plugin-vue": "^6.2.2",
+        "vue-template-compiler": "^2.6.11",
         "compression-webpack-plugin": "^4.0.0"
     },
     "eslintConfig": {
