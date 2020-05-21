@@ -65,7 +65,7 @@
 <script>
 /* eslint-disable no-console */
 import { ApiService } from "../services/ApiService";
-import BButton from "bootstrap-vue/es/components/button/button";
+import {BButton} from 'bootstrap-vue';
 
 const apiService = new ApiService();
 

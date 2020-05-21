@@ -298,7 +298,7 @@
 import { ApiService } from "../services/ApiService";
 import StepperMotorDetails from "../components/StepperMotorDetails";
 import PositionSwitchDetails from "../components/PositionSwitchDetails";
-import BButton from "bootstrap-vue/es/components/button/button";
+import {BButton} from 'bootstrap-vue';
 import RotaryEncoderDetails from "../components/RotaryEncoderDetails";
 
 const apiService = new ApiService();

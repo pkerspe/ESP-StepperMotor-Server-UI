@@ -2,11 +2,10 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 
-// BOOTSTRAP
-import { Layout, Modal } from 'bootstrap-vue/es/components'
+import { LayoutPlugin, ModalPlugin } from 'bootstrap-vue'
+Vue.use(LayoutPlugin)
+Vue.use(ModalPlugin)
 
-Vue.use(Layout)
-Vue.use(Modal)
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
