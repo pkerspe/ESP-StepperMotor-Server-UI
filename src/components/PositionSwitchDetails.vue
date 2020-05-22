@@ -7,19 +7,30 @@
                 </div>
                 <div class="p-1 pl-3">
                     Name: <br/>
-                    ID:<br/>
                     IO-Pin:<br/>
                     Stepper ID:<br/>
                     Switch type:<br/>
-                    Position:<br/>
+                    Switch position:<br/>
                 </div>
                 <div class="p-1">
                     <strong>{{switchConfiguration.name}}</strong><br/>
-                    <strong>{{switchConfiguration.id}}</strong><br/>
                     <strong>{{switchConfiguration.ioPin}}</strong><br/>
-                    <strong>{{switchConfiguration.stepperId}}</strong> ({{switchConfiguration.stepperName}})<br/>
+                    <strong>{{switchConfiguration.stepperId}}</strong><br/>
                     <strong>{{switchConfiguration.type}}</strong><br/>
-                    <strong>{{switchConfiguration.position}}</strong><br/>
+                    <strong>{{(switchConfiguration.position == -1) ? 'none': switchConfiguration.position}}</strong><br/>
+                </div>
+                <div class="p-1 pl-3">
+                    ID:<br/>
+                    <br/>
+                    Stepper Name:<br/>
+                    Signal:<br/>
+                </div>
+                <div class="p-1">
+                    <strong>{{switchConfiguration.id}}</strong><br/>
+                    <br/>
+                    <strong>{{switchConfiguration.stepperName}}</strong><br/>
+                    <strong>{{(switchConfiguration.isActiveHighType) ? 'active high': 'active low'}}</strong><br/>
+                    
                 </div>
                 <div class="hover-btn">
                     <b-button variant="danger" v-on:click="$emit('delete',switchConfiguration.id)">

@@ -7,17 +7,25 @@
                 </div>
                 <div class="p-1 pl-3">
                     Name: <br/>
-                    ID:<br/>
                     IO-Pin A:<br/>
-                    IO-Pin B:<br/>
-                    Linked stepper ID:<br/>
+                    Stepper ID:<br/>
+                    Step multiplier:<br/>
                 </div>
                 <div class="p-1">
                     <strong>{{encoderConfiguration.name}}</strong><br/>
-                    <strong>{{encoderConfiguration.id}}</strong><br/>
                     <strong>{{encoderConfiguration.ioPinA}}</strong><br/>
+                    <strong>{{encoderConfiguration.stepperId}}</strong><br/>
+                    <strong>{{encoderConfiguration.stepMultiplier}}</strong>
+                </div>
+                <div class="p-1 pl-3">
+                    ID:<br/>
+                    IO-Pin B:<br/>
+                    Stepper name:<br/>
+                </div>
+                <div class="p-1">
+                    <strong>{{encoderConfiguration.id}}</strong><br/>
                     <strong>{{encoderConfiguration.ioPinB}}</strong><br/>
-                    <strong>{{encoderConfiguration.stepperId}}</strong> ({{encoderConfiguration.stepperName}})<br/>
+                    <strong>{{encoderConfiguration.stepperName}}</strong>
                 </div>
                 <div class="hover-btn">
                     <b-button variant="danger" v-on:click="$emit('delete',encoderConfiguration.id)">

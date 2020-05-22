@@ -5,12 +5,13 @@
       v-bind:key="'stepper-'+stepperConfiguration.id"
       v-bind:stepperConfiguration="stepperConfiguration"
       v-on:delete="deleteStepperConfiguration"
+      v-on:edit="editStepperConfiguration"
     ></stepper-motor-details>
 
     <div class="row pt-3">
       <div class="col-12">
         <b-button variant="success" v-b-modal.add-stepper>
-          <font-awesome-icon icon="plus-circle" />add stepper motor
+          <font-awesome-icon icon="plus-circle" /> add stepper motor
         </b-button>
 
         <!-- Modal to add new stepper -->
@@ -18,9 +19,11 @@
           id="add-stepper"
           title="Add a new stepper motor configuration"
           @ok="addStepperConfiguration"
+          @cancel="closeAndResetStepperModalForm"
           ref="addStepperModal"
         >
           <form>
+            <span v-if="this.stepperToAdd.mode == 'edit'">Editing existing stepper configuration with id {{this.stepperToAdd.id}}</span>
             <div class="form-group">
               <label for="displayName">Display name for the stepper motor</label>
               <input
@@ -28,7 +31,8 @@
                 class="form-control"
                 id="displayName"
                 v-model="stepperToAdd.name"
-                placeholder="display name or axis name"
+                placeholder="display name or axis name (max 20 characters)"
+                maxlength="20"
               />
             </div>
             <div class="form-group">
@@ -82,12 +86,13 @@
       v-bind:key="'switch-'+switchConfiguration.id"
       v-bind:switchConfiguration="switchConfiguration"
       v-on:delete="deleteSwitchConfiguration"
+      v-on:edit="editSwitchConfiguration"
     ></position-switch-details>
 
     <div class="row pt-3">
       <div class="col-12">
         <b-button variant="success" v-b-modal.add-switch>
-          <font-awesome-icon icon="plus-circle" />add limit switch
+          <font-awesome-icon icon="plus-circle" /> add limit switch
         </b-button>
 
         <!-- Modal to add new switch -->
@@ -105,7 +110,8 @@
                 class="form-control"
                 id="positionName"
                 v-model="switchToAdd.positionName"
-                placeholder="display name for this switch"
+                placeholder="display name for this switch (max 20 characters)"
+                maxlength="20"
               />
             </div>
             <div class="form-group">
@@ -139,7 +145,7 @@
               </select>
               <small id="stepperIdHelp" class="form-text text-muted">
                 select the stepper motor to which
-                this switch should be associated
+                this switch should be associated with
               </small>
             </div>
             <div class="form-group">
@@ -181,7 +187,7 @@
             </div>
             <div class="form-group">
               <label for="switchPosition">
-                Position (in steps) of the switch or -1 for not specific
+                Position (in steps) of the switch or -1 for no specific
                 position
               </label>
               <input
@@ -202,12 +208,13 @@
       v-bind:key="'encoder-'+encoderConfiguration.id"
       v-bind:encoderConfiguration="encoderConfiguration"
       v-on:delete="deleteRotaryEncoderConfiguration"
+      v-on:edit="editRotaryEncoderConfiguration"
     ></rotary-encoder-details>
 
     <div class="row pt-3">
       <div class="col-12">
         <b-button variant="success" v-b-modal.add-encoder>
-          <font-awesome-icon icon="plus-circle" />add rotary encoder
+          <font-awesome-icon icon="plus-circle" /> add rotary encoder
         </b-button>
 
         <!-- Modal to add new rotary encoder -->
@@ -225,7 +232,8 @@
                 class="form-control"
                 id="encoderDisplayName"
                 v-model="encoderToAdd.name"
-                placeholder="display name"
+                placeholder="display name (max 20 characters)"
+                maxlength="20"
               />
             </div>
             <div class="form-group">
@@ -268,6 +276,21 @@
                 <strong>pin B</strong> of the rotary encoder
               </small>
             </div>
+             <div class="form-group">
+              <label for="stepperId">Stepper motor the rotary encoder belongs to</label>
+              <select id="stepperId" class="form-control" v-model="encoderToAdd.stepperId">
+                <option value="-1" selected>please select a stepper motor</option>
+                <option
+                  v-for="stepperConfig in configuredSteppers"
+                  :value="stepperConfig.id"
+                  v-bind:key="'stepper'+stepperConfig.id"
+                >{{stepperConfig.name}} ({{stepperConfig.id}})</option>
+              </select>
+              <small id="stepperIdHelp" class="form-text text-muted">
+                select the stepper motor to which
+                this rotary encoder should be associated with
+              </small>
+            </div>
             <div class="form-group">
               <label for="encoderMultuplier">Step Multiplier value</label>
               <input
@@ -298,7 +321,7 @@
 import { ApiService } from "../services/ApiService";
 import StepperMotorDetails from "../components/StepperMotorDetails";
 import PositionSwitchDetails from "../components/PositionSwitchDetails";
-import {BButton} from 'bootstrap-vue';
+import { BButton } from "bootstrap-vue";
 import RotaryEncoderDetails from "../components/RotaryEncoderDetails";
 
 const apiService = new ApiService();
@@ -549,27 +572,21 @@ export default {
       });
     },
     getConfiguredRotaryEncoders() {
-      //DUMMY
-      console.log("populating dummy encoders");
-      this.configuredEncoders = [
-        {
-          name: "encoder 1",
-          id: 0,
-          ioPinA: 1,
-          ioPinB: 2,
-          stepperId: 0,
-          stepperName: "X-Axis"
-        },
-        {
-          name: "encoder 2",
-          id: 1,
-          ioPinA: 15,
-          ioPinB: 16,
-          stepperId: 1,
-          stepperName: "Y-Axis"
-        }
-      ];
+      apiService.getConfiguredRotaryEncoders().then(data => {
+        if (data) {
+          this.configuredEncoders = data;
 
+          this.configuredEncoders.forEach(configuredSwitch => {
+            if (configuredSwitch.pin >= 0) {
+              this.setPinUsedByInfo(
+                configuredSwitch.pin,
+                configuredSwitch.name + " switch"
+              );
+            }
+            console.log(configuredSwitch);
+          });
+        }
+      });
       this.configuredEncoders.forEach(configuredEncoder => {
         if (configuredEncoder.ioPinA >= 0) {
           this.setPinUsedByInfo(
@@ -584,8 +601,16 @@ export default {
           );
         }
         // eslint-disable-next-line no-console
-        console.log(configuredEncoder);
+        console.log("encoder loaded: ", configuredEncoder);
       });
+    },
+    closeAndResetStepperModalForm() {
+      this.$refs["addStepperModal"].hide();
+      this.stepperToAdd.id = "";
+      this.stepperToAdd.stepPin = -1;
+      this.stepperToAdd.dirPin = -1;
+      this.stepperToAdd.name = "";
+      this.stepperToAdd.mode = "add";
     },
     addStepperConfiguration(bvModalEvt) {
       // Prevent modal from closing
@@ -597,27 +622,46 @@ export default {
       } else if (this.stepperToAdd.dirPin == -1) {
         alert("Please select the direction IO pin");
       } else {
-        apiService
-          .addStepperMotor(
-            this.stepperToAdd.stepPin,
-            this.stepperToAdd.dirPin,
-            this.stepperToAdd.name
-          )
-          .then(
-            () => {
-              this.getConfiguredSteppers();
-              this.$refs["addStepperModal"].hide();
-              this.stepperToAdd.stepPin = -1;
-              this.stepperToAdd.dirPin = -1;
-              this.stepperToAdd.name = "";
-            },
-            error => {
-              alert(
-                "An error occurred while trying to add the new stepper:\n" +
-                  error.response.data.error
-              );
-            }
-          );
+        if (this.stepperToAdd.mode == "edit") {
+          apiService
+            .updateStepperMotor(
+              this.stepperToAdd.id,
+              this.stepperToAdd.stepPin,
+              this.stepperToAdd.dirPin,
+              this.stepperToAdd.name
+            )
+            .then(
+              () => {
+                this.getConfiguredSteppers();
+                this.closeAndResetStepperModalForm();
+              },
+              error => {
+                alert(
+                  "An error occurred while trying to udate the existing stepper:\n" +
+                    error.response.data.error
+                );
+              }
+            );
+        } else {
+          apiService
+            .addStepperMotor(
+              this.stepperToAdd.stepPin,
+              this.stepperToAdd.dirPin,
+              this.stepperToAdd.name
+            )
+            .then(
+              () => {
+                this.getConfiguredSteppers();
+                this.closeAndResetStepperModalForm();
+              },
+              error => {
+                alert(
+                  "An error occurred while trying to add the new stepper:\n" +
+                    error.response.data.error
+                );
+              }
+            );
+        }
       }
     },
     addSwitch(bvModalEvt) {
@@ -672,25 +716,33 @@ export default {
       // Prevent modal from closing
       bvModalEvt.preventDefault();
       if (this.encoderToAdd.name == "") {
-        alert("Please enter a name for the new stepper motor");
-      } else if (this.encoderToAdd.stepPin == -1) {
-        alert("Please select the step IO pin");
-      } else if (this.encoderToAdd.dirPin == -1) {
-        alert("Please select the direction IO pin");
+        alert("Please enter a name for the new rotary encoder");
+      } else if (this.encoderToAdd.ioPinA == -1) {
+        alert("Please select the Pin A IO pin");
+      } else if (this.encoderToAdd.ioPinB == -1) {
+        alert("Please select the Pin B IO pin");
+      } else if (this.encoderToAdd.stepperId == -1) {
+        alert("Please select the stepper configuration this encoder should be linked to");
+      } else if (this.encoderToAdd.stepMultiplier < 1) {
+        alert("Please select the step multiplier to be applied for each encoder step");
       } else {
         apiService
-          .addStepperMotor(
-            this.encoderToAdd.stepPin,
-            this.encoderToAdd.dirPin,
-            this.encoderToAdd.name
+          .addRotaryEncoder(
+            this.encoderToAdd.stepperId,
+            this.encoderToAdd.ioPinA,
+            this.encoderToAdd.ioPinB,
+            this.encoderToAdd.name,
+            this.encoderToAdd.stepMultiplier
           )
           .then(
             () => {
-              this.getConfiguredSteppers();
-              this.$refs["addStepperModal"].hide();
-              this.encoderToAdd.stepPin = -1;
-              this.encoderToAdd.dirPin = -1;
+              this.getConfiguredRotaryEncoders();
+              this.$refs["addEncoderModal"].hide();
+              this.encoderToAdd.stepperId = -1;
+              this.encoderToAdd.ioPinA = -1;
+              this.encoderToAdd.ioPinB = -1;
               this.encoderToAdd.name = "";
+              this.encoderToAdd.stepMultiplier = 1;
             },
             error => {
               alert(
@@ -701,6 +753,28 @@ export default {
           );
       }
     },
+    editStepperConfiguration(id) {
+      var stepperConfigToEdit = this.configuredSteppers.filter(function(
+        stepperConfig
+      ) {
+        return stepperConfig.id == id;
+      });
+      if(stepperConfigToEdit.length != 1){
+        alert("a problem occured while trying to find the matching stepper configuration. Maybe reloading the page will solve the issue");
+        return;
+      }
+      stepperConfigToEdit = stepperConfigToEdit[0];
+      console.log(
+        "editStepperConfiguration called for id " + id,
+        stepperConfigToEdit
+      );
+      this.$refs["addStepperModal"].show();
+      this.stepperToAdd.stepPin = stepperConfigToEdit.stepPin;
+      this.stepperToAdd.dirPin = stepperConfigToEdit.dirPin;
+      this.stepperToAdd.name = stepperConfigToEdit.name;
+      this.stepperToAdd.id = stepperConfigToEdit.id;
+      this.stepperToAdd.mode = "edit";
+    },
     deleteStepperConfiguration(id) {
       apiService.deleteStepperMotor(id).then(
         () => {
@@ -709,6 +783,9 @@ export default {
           ) {
             return stepper.id != id;
           });
+          //reload other configuration, since the switches and encoders might have been linked ot the stepper motor and as such would have been deleted as well
+          this.getConfiguredSwitches();
+          this.getConfiguredRotaryEncoders();
         },
         error => {
           alert(
@@ -751,7 +828,52 @@ export default {
           );
         }
       );
-    }
+    },
+    editSwitchConfiguration(id) {
+      var switchToEdit = this.configuredSwitches.filter(function(
+        switchConfig
+      ) {
+        return switchConfig.id == id;
+      });
+      if(switchToEdit.length != 1){
+        alert("a problem occured while trying to find the matching switch configuration. Maybe reloading the page will solve the issue");
+        return;
+      }
+      switchToEdit = switchToEdit[0];
+      console.log(
+        "editSwitchConfiguration called for id " + id,
+        switchToEdit
+      );
+      this.$refs["addSwitchModal"].show();
+      this.switchToAdd.stepperId = switchToEdit.stepperId;
+      this.switchToAdd.ioPinNumber = switchToEdit.ioPin;
+      this.switchToAdd.positionName = switchToEdit.name;
+      this.switchToAdd.switchPosition = switchToEdit.position;
+      this.switchToAdd.switchType = switchToEdit.switchType;
+      this.switchToAdd.switchTypeActiveState = (switchToEdit.isActiveHighType) ? 1 : 2;
+    },
+    editRotaryEncoderConfiguration(id) {
+      var encoderToEdit = this.configuredEncoders.filter(function(
+        encoderConfig
+      ) {
+        return encoderConfig.id == id;
+      });
+      if(encoderToEdit.length != 1){
+        alert("a problem occured while trying to find the matching encoder configuration. Maybe reloading the page will solve the issue");
+        return;
+      }
+      encoderToEdit = encoderToEdit[0];
+      console.log(
+        "editEncoderConfiguration called for id " + id,
+        encoderToEdit
+      );
+      this.$refs["addEncoderModal"].show();
+      this.encoderToAdd.stepperId = encoderToEdit.stepperId;
+      this.encoderToAdd.ioPinA = encoderToEdit.ioPinA;
+      this.encoderToAdd.ioPinB = encoderToEdit.ioPinB;
+      this.encoderToAdd.name = encoderToEdit.name;
+      this.encoderToAdd.stepMultiplier = encoderToEdit.stepMultiplier;
+    },
   },
   mounted() {
     this.getConfiguredSteppers();

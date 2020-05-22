@@ -27,6 +27,10 @@
                     <b-button variant="danger" v-on:click="$emit('delete',stepperConfiguration.id)">
                         <font-awesome-icon icon="trash"/>
                     </b-button>
+                    <br/>
+                    <b-button class="mt-3" variant="success" v-on:click="$emit('edit',stepperConfiguration.id)">
+                        <font-awesome-icon icon="pen"/>
+                    </b-button>
                 </div>
             </div>
         </div>

@@ -37,26 +37,37 @@ export class ApiService {
         return axios.post(url, params).then(response => response.data);
     }
 
+    updateStepperMotor(id, stepPin, dirPin, displayName) {
+        const url = `${API_URL}/api/steppers?id=${id}`;
+        var params = {
+            stepPin: stepPin,
+            dirPin: dirPin,
+            name: displayName
+        };
+        return axios.put(url, params).then(response => response.data);
+    }
+
     moveStepperBySteps(stepperId, steps, speed, accell) {
-        const url = `${API_URL}/api/steppers/moveby?id=` + stepperId + '&value=' + steps + '&unit=steps&speed=' + speed + "&accell=" + accell;
+        const url = `${API_URL}/api/steppers/moveby?id=${stepperId}&value=${steps}&unit=steps&speed=${speed}&accell=${accell}`;
         return axios.post(url).then(response => response.data);
     }
 
     moveStepperByRevs(stepperId, revs) {
-        const url = `${API_URL}/api/steppers/moveby?id=` + stepperId + '&value=' + revs + '&unit=revs';
+        const url = `${API_URL}/api/steppers/moveby?id=${stepperId}&value=${revs}&unit=revs`;
         return axios.post(url).then(response => response.data);
     }
 
     moveStepperByMilimeter(stepperId, mm) {
-        const url = `${API_URL}/api/steppers/moveby?id=` + stepperId + '&value=' + mm + '&unit=mm';
+        const url = `${API_URL}/api/steppers/moveby?id=${stepperId}&value=${mm}&unit=mm`;
         return axios.post(url).then(response => response.data);
     }
 
     deleteStepperMotor(stepperId) {
-        const url = `${API_URL}/api/steppers?id=` + stepperId;
+        const url = `${API_URL}/api/steppers?id=${stepperId}`;
         return axios.delete(url).then(response => response.data);
     }
 
+    /**** POSITION SWITCH RELATED ENDPOINTS *******/
     addPositionSwitch(stepperId, ioPinNumber, positionName, switchPosition, switchType) {
         const url = `${API_URL}/api/switches`;
         var params = {
@@ -67,6 +78,18 @@ export class ApiService {
             switchType: switchType
         };
         return axios.post(url, params).then(response => response.data);
+    }
+
+    updatePositionSwitch(id, stepperId, ioPinNumber, positionName, switchPosition, switchType) {
+        const url = `${API_URL}/api/switches?id=${id}`;
+        var params = {
+            stepperId: stepperId,
+            ioPinNumber: ioPinNumber,
+            positionName: positionName,
+            switchPosition: switchPosition,
+            switchType: switchType
+        };
+        return axios.put(url, params).then(response => response.data);
     }
 
     getConfiguredPositionSwitches() {
@@ -82,16 +105,57 @@ export class ApiService {
         }
     }
 
-    deletePositionSwitch(switchId) {
-        const url = `${API_URL}/api/switches?id=` + switchId;
+    getConfiguredPositionSwitch(id) {
+        const url = `${API_URL}/api/switches=${id}`;
+        return axios.get(url).then(response => response.data);
+    }
+
+    deletePositionSwitch(id) {
+        const url = `${API_URL}/api/switches?id=${id}`;
         return axios.delete(url).then(response => response.data);
     }
 
-    deleteRotaryEncoder(encoderId) {
-        const url = `${API_URL}/api/encoders?id=` + encoderId;
+    /**** ROTARY ENCODER RELATED ENDPOINTS *******/
+    addRotaryEncoder(stepperId, pinAiOPin, pinBiOPin, displayName, stepMultiplier) {
+        const url = `${API_URL}/api/encoders`;
+        var params = {
+            stepperId: stepperId,
+            pinA: pinAiOPin,
+            pinB: pinBiOPin,
+            displayName: displayName,
+            stepMultiplier: stepMultiplier
+        };
+        return axios.post(url, params).then(response => response.data);
+    }
+
+    updateRotaryEncoder(id, stepperId, pinAiOPin, pinBiOPin, displayName, stepMultiplier) {
+        const url = `${API_URL}/api/encoders?id=${id}`;
+        var params = {
+            stepperId: stepperId,
+            pinA: pinAiOPin,
+            pinBiOPin: pinBiOPin,
+            displayName: displayName,
+            stepMultiplier: stepMultiplier
+        };
+        return axios.put(url, params).then(response => response.data);
+    }
+
+    getConfiguredRotaryEncoders() {
+        const url = `${API_URL}/api/encoders`;
+        return axios.get(url).then(response => response.data.rotaryEncoders);
+    }
+
+    getConfiguredRotaryEncoder(id) {
+        const url = `${API_URL}/api/encoders?id=${id}`;
+        return axios.get(url).then(response => response.data);
+    }
+
+    deleteRotaryEncoder(id) {
+        const url = `${API_URL}/api/encoders?id=${id}`;
         return axios.delete(url).then(response => response.data);
     }
 
+    /**** OTHER ENDPOINTS *******/
     getServerStatus() {
         const url = `${API_URL}/api/status`;
         if (mock) {

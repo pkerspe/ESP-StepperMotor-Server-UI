@@ -126,7 +126,7 @@ export default {
           paths: ["/api/steppers"],
           description: "add a new stepper configuration entry. Returns the id of the newly created stepper configuration",
           parameters: [
-            {name:"name", type:"String",optional: false, desc:"the display name for this stepper configuration. E.g. the axis name for the stepper. Should not be longer then 30 characters",allowedValues:[]},
+            {name:"name", type:"String",optional: false, desc:"the display name for this stepper configuration. E.g. the axis name for the stepper. Should not be longer then 20 characters",allowedValues:[]},
             {name:"stepPin", type:"int",optional: false, desc:"the IO pin number of the ESP to use for sending step signals to the stepper driver",allowedValues:[]},
             {name:"dirPin", type:"int",optional: false, desc:"the IO pin number of the ESP to use for sending the direction signal to the stepper driver",allowedValues:[]}
           ],
@@ -139,7 +139,7 @@ export default {
           description: "update an existing stepper configuration entry",
           parameters: [
             {name:"id", type:"int",optional: false, desc:"the id of the stepper motor configuration to update",allowedValues:[]},
-            {name:"name", type:"String",optional: false, desc:"the display name for this stepper configuration. E.g. the axis name for the stepper. Should not be longer then 30 characters",allowedValues:[]},
+            {name:"name", type:"String",optional: false, desc:"the display name for this stepper configuration. E.g. the axis name for the stepper. Should not be longer then 20 characters",allowedValues:[]},
             {name:"stepPin", type:"int",optional: false, desc:"the IO pin number of the ESP to use for sending step signals to the stepper driver",allowedValues:[]},
             {name:"dirPin", type:"int",optional: false, desc:"the IO pin number of the ESP to use for sending the direction signal to the stepper driver",allowedValues:[]}
           ],
@@ -175,9 +175,9 @@ export default {
           parameters: [
               {name:"stepperId", type:"int",optional: false, desc:"the id of the stepper configuration this switch should be linked to",allowedValues:[]},
               {name:"ioPinNumber", type:"int",optional: false, desc:"the IO pin number the switch is connected to",allowedValues:[]},
-              {name:"positionName", type:"String",optional: false, desc:"the name for this switch or the position it represents e.g. 'Homing Switch X-Axis'. Should be no more than 30 characters long",allowedValues:[]},
+              {name:"positionName", type:"String",optional: false, desc:"the name for this switch or the position it represents e.g. 'Homing Switch X-Axis'. Should be no more than 20 characters long",allowedValues:[]},
               {name:"switchPosition", type:"String",optional: false, desc:"the position value",allowedValues:[]},
-              {name:"switchType", type:"int",optional: false, desc:"the type of switch. 4=homing switch begin/left/bottom,8=homing switch end/right/top,16=general position switch,32=emergency stop switch",allowedValues:[4,8,16,32]},
+              {name:"switchType", type:"int",optional: false, desc:"the type of switch. This value has to an int value representing a bit mask that combines the active state of the switch (bit 1 (deicmal number 1) set = switch is active high, bit 2 (decimal number 2) set = active low) as well as the general type of switch: bit 3 set (decimal number 4) = homing switch begin/left/bottom, bit 4 set (decimal number 8)= homing switch end/right/top, bit 5 set (decimal number 16) = general position switch, bit 6 set (decimal number 32) = emergency stop switch. E.g. if you want to configure the switch as an active high emergency stop switch you need to send a decimal value of 33 (32 for emergency stop switch + 1 for active high. 33 in binary is 100001)",allowedValues:[5,6,9,10,17,18,33,34]},
           ],
           output: ""
         },
@@ -190,7 +190,7 @@ export default {
               {name:"id", type:"int",optional: false, desc:"the id of the switch configuration to update",allowedValues:[]},
               {name:"stepperId", type:"int",optional: false, desc:"the id of the stepper configuration this switch should be linked to",allowedValues:[]},
               {name:"ioPinNumber", type:"int",optional: false, desc:"the IO pin number the switch is connected to",allowedValues:[]},
-              {name:"positionName", type:"String",optional: false, desc:"the name for this switch or the position it represents e.g. 'Homing Switch X-Axis'. Should be no more than 30 characters long",allowedValues:[]},
+              {name:"positionName", type:"String",optional: false, desc:"the name for this switch or the position it represents e.g. 'Homing Switch X-Axis'. Should be no more than 20 characters long",allowedValues:[]},
               {name:"switchPosition", type:"String",optional: false, desc:"the position value",allowedValues:[]},
               {name:"switchType", type:"int",optional: false, desc:"the type of switch. 4=homing switch begin/left/bottom,8=homing switch end/right/top,16=general position switch,32=emergency stop switch",allowedValues:[4,8,16,32]}
           ],
