@@ -13,6 +13,11 @@
                             Copyright (c) 2019 Paul Kerspe - Licensed under the <a
                                     href="https://github.com/pkerspe/ESP-StepperMotor-Server/blob/master/LICENSE.txt"
                                     target="_blank">MIT license</a>.</p>
+                                    <p>
+                                    <b-button variant="success" href="/restapi">
+                                        <font-awesome-icon icon="file" /> show REST API documentation
+                                    </b-button>
+                                    </p>
                     </div>
                 </div>
 
@@ -41,6 +46,7 @@
 
 <script>
     import {ApiService} from '../services/ApiService';
+    import {BButton} from 'bootstrap-vue';
 
     const apiService = new ApiService();
 
@@ -51,6 +57,9 @@
                 versionNumber: window.serverUIVersion,
                 restApiVersionNumber: ""
             }
+        },
+        components: {
+            BButton
         },
         methods: {
             getRestApiVersion() {

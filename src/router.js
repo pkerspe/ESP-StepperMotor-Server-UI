@@ -4,6 +4,7 @@ import Home from './views/Home.vue'
 import Setup from './views/Setup.vue'
 import Control from './views/Control.vue'
 import About from './views/About.vue'
+import RestApiDoc from './views/RestApiDoc.vue'
 
 Vue.use(Router)
 
@@ -41,6 +42,15 @@ const routes = [
         component: About,
         meta: {
             title: 'About ESP-StepperMotor-Server',
+            description: ''
+        }
+    },
+    {
+        path: '/restapi',
+        name: 'REST API',
+        component: RestApiDoc,
+        meta: {
+            title: 'REST API documentation',
             description: ''
         }
     }

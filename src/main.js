@@ -29,11 +29,12 @@ import {
     faFastForward,
     faBackward,
     faFastBackward,
-    faDotCircle
+    faDotCircle,
+    faFile
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add([faCogs, faGamepad, faInfoCircle, faTachometerAlt, faBars, faTimes, faPlusCircle, faTrash, faPen, faStop, faForward, faFastForward, faBackward, faFastBackward, faDotCircle])
+library.add([faCogs, faGamepad, faInfoCircle, faTachometerAlt, faBars, faTimes, faPlusCircle, faTrash, faPen, faStop, faForward, faFastForward, faBackward, faFastBackward, faDotCircle, faFile])
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 // toastr
