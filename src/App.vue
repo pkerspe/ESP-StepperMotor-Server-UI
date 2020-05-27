@@ -83,6 +83,17 @@
 </template>
 
 <style>
+.main-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+.main-content-container {
+  padding-bottom: 60px;
+}
+
 .nav-link {
   font-size: 1.5rem !important;
 }

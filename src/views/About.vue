@@ -12,12 +12,13 @@
                             Server version: {{restApiVersionNumber}}<br/>
                             Copyright (c) 2019 Paul Kerspe - Licensed under the <a
                                     href="https://github.com/pkerspe/ESP-StepperMotor-Server/blob/master/LICENSE.txt"
-                                    target="_blank">MIT license</a>.</p>
-                                    <p>
-                                    <b-button variant="success" href="/restapi">
-                                        <font-awesome-icon icon="file" /> show REST API documentation
-                                    </b-button>
-                                    </p>
+                                    target="_blank">MIT license</a>.
+                        </p>
+                        <p>
+                            <b-button variant="success" to="restapi">
+                                <font-awesome-icon icon="file" /> show REST API documentation
+                            </b-button>
+                        </p>
                     </div>
                 </div>
 
