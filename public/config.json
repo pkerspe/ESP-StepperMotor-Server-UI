@@ -30,34 +30,34 @@
     "switchConfigurations": [
         {
             "id": 0,
-            "ioPin": 30,
+            "ioPin": 14,
             "stepperIndex": 0,
-            "stepperIndexswitchType": 64,
+            "switchType": 64,
             "name": "Limit 1 X-Axis",
-            "position": 0
+            "switchPosition": -1
         },
         {
             "id": 1,
-            "ioPin": 20,
+            "ioPin": 15,
             "stepperIndex": 1,
-            "stepperIndexswitchType": 64,
+            "switchType": 64,
             "name": "Limit 2 X-Axis",
-            "position": 200000
+            "switchPosition": 200000
         }
     ],
     "rotaryEncoderConfigurations": [
         {
             "id": 0,
-            "pinA": 18,
-            "pinB": 19,
+            "pinA": 16,
+            "pinB": 17,
             "name": "Encoder X-Axis",
             "stepMultiplier": 100,
             "stepperIndex": 0
         },
         {
             "id": 1,
-            "pinA": 16,
-            "pinB": 17,
+            "pinA": 18,
+            "pinB": 19,
             "name": "Encoder Y-Axis",
             "stepMultiplier": 100,
             "stepperIndex": 1

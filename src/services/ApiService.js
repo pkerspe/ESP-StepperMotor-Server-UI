@@ -8,6 +8,11 @@ const mock = false;
 export class ApiService {
     constructor() {}
 
+    saveConfigurationToSpiffs(){
+        const url = `${API_URL}/api/config/save`;
+        return axios.get(url).then(response => response.data);
+    }
+    
     getConfiguredStepperMotors() {
         const url = `${API_URL}/api/steppers`;
         if (mock) {
@@ -133,7 +138,7 @@ export class ApiService {
         var params = {
             stepperId: stepperId,
             pinA: pinAiOPin,
-            pinBiOPin: pinBiOPin,
+            pinB: pinBiOPin,
             displayName: displayName,
             stepMultiplier: stepMultiplier
         };

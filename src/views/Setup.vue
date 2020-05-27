@@ -1,5 +1,11 @@
 <template>
-  <div class="setup">
+  <div class="setup pb-5">
+    <span class="saveConfigBanner">
+      <b-button variant="warning" v-on:click="saveConfig">
+        <font-awesome-icon icon="save" />&nbsp;save current configuration to device
+      </b-button>
+    </span>
+
     <stepper-motor-details
       v-for="stepperConfiguration in configuredSteppers"
       v-bind:key="'stepper-'+stepperConfiguration.id"
@@ -11,7 +17,7 @@
     <div class="row pt-3">
       <div class="col-12">
         <b-button variant="success" v-b-modal.add-stepper>
-          <font-awesome-icon icon="plus-circle" /> add stepper motor
+          <font-awesome-icon icon="plus-circle" />&nbsp;add stepper motor
         </b-button>
 
         <!-- Modal to add new stepper -->
@@ -23,7 +29,9 @@
           ref="addStepperModal"
         >
           <form>
-            <span v-if="this.stepperToAdd.mode == 'edit'">Editing existing stepper configuration with id {{this.stepperToAdd.id}}</span>
+            <span
+              v-if="this.stepperToAdd.mode == 'edit'"
+            >Editing existing stepper configuration with id {{this.stepperToAdd.id}}</span>
             <div class="form-group">
               <label for="displayName">Display name for the stepper motor</label>
               <input
@@ -85,6 +93,7 @@
       v-for="switchConfiguration in configuredSwitches"
       v-bind:key="'switch-'+switchConfiguration.id"
       v-bind:switchConfiguration="switchConfiguration"
+      v-bind:configuredSteppers="configuredSteppers"
       v-on:delete="deleteSwitchConfiguration"
       v-on:edit="editSwitchConfiguration"
     ></position-switch-details>
@@ -92,7 +101,7 @@
     <div class="row pt-3">
       <div class="col-12">
         <b-button variant="success" v-b-modal.add-switch>
-          <font-awesome-icon icon="plus-circle" /> add limit switch
+          <font-awesome-icon icon="plus-circle" />&nbsp;add limit switch
         </b-button>
 
         <!-- Modal to add new switch -->
@@ -207,6 +216,7 @@
       v-for="encoderConfiguration in configuredEncoders"
       v-bind:key="'encoder-'+encoderConfiguration.id"
       v-bind:encoderConfiguration="encoderConfiguration"
+      v-bind:configuredSteppers="configuredSteppers"
       v-on:delete="deleteRotaryEncoderConfiguration"
       v-on:edit="editRotaryEncoderConfiguration"
     ></rotary-encoder-details>
@@ -214,7 +224,7 @@
     <div class="row pt-3">
       <div class="col-12">
         <b-button variant="success" v-b-modal.add-encoder>
-          <font-awesome-icon icon="plus-circle" /> add rotary encoder
+          <font-awesome-icon icon="plus-circle" />&nbsp;add rotary encoder
         </b-button>
 
         <!-- Modal to add new rotary encoder -->
@@ -276,7 +286,7 @@
                 <strong>pin B</strong> of the rotary encoder
               </small>
             </div>
-             <div class="form-group">
+            <div class="form-group">
               <label for="stepperId">Stepper motor the rotary encoder belongs to</label>
               <select id="stepperId" class="form-control" v-model="encoderToAdd.stepperId">
                 <option value="-1" selected>please select a stepper motor</option>
@@ -314,6 +324,19 @@
 </template>
 
 <style>
+.saveConfigBanner {
+  position: fixed;
+  bottom: 30px;
+  right: 0;
+  z-index: 1000;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  height: 50px;
+  text-align: right;
+  padding-top: 8px;
+  padding-right: 10px;
+  border-top: 1px solid #ccc;
+}
 </style>
 
 <script>
@@ -521,6 +544,19 @@ export default {
     RotaryEncoderDetails
   },
   methods: {
+    saveConfig() {
+      apiService.saveConfigurationToSpiffs().then(() => {
+        this.$toastr.success(
+          "Configuration saved successful",
+          { timeOut: 1500 }
+        )
+      }).error(()=>{
+        this.$toastr.error(
+          "Failed to save configuraiton to device",
+          { timeOut: 1500 }
+        )
+      });
+    },
     setPinUsedByInfo(pinNumber, usedByString) {
       this.allowedIoOutputPins.forEach(pinObject => {
         if (pinObject.pin === pinNumber) {
@@ -673,7 +709,10 @@ export default {
         alert("Please select the IO pin the switch is connected to");
       } else if (this.switchToAdd.stepperId == -1) {
         alert("Please select the stepper motor this switch is used for");
-      } else if (this.switchToAdd.switchPosition == "") {
+      } else if (
+        this.switchToAdd.switchPosition == "" ||
+        this.switchToAdd.switchPosition < -1
+      ) {
         alert(
           "Please select the position of this switch or -1 for no specific position"
         );
@@ -712,6 +751,16 @@ export default {
           );
       }
     },
+    closeAndResetEncoderModalForm() {
+      this.$refs["addEncoderModal"].hide();
+      this.encoderToAdd.id = "";
+      this.encoderToAdd.ioPinA = -1;
+      this.encoderToAdd.ioPinB = -1;
+      this.encoderToAdd.name = "";
+      this.encoderToAdd.stepperId = -1;
+      this.encoderToAdd.stepMultiplier = -1;
+      this.encoderToAdd.mode = "add";
+    },
     addEncoderConfiguration(bvModalEvt) {
       // Prevent modal from closing
       bvModalEvt.preventDefault();
@@ -722,35 +771,63 @@ export default {
       } else if (this.encoderToAdd.ioPinB == -1) {
         alert("Please select the Pin B IO pin");
       } else if (this.encoderToAdd.stepperId == -1) {
-        alert("Please select the stepper configuration this encoder should be linked to");
+        alert(
+          "Please select the stepper configuration this encoder should be linked to"
+        );
       } else if (this.encoderToAdd.stepMultiplier < 1) {
-        alert("Please select the step multiplier to be applied for each encoder step");
+        alert(
+          "Please select the step multiplier to be applied for each encoder step"
+        );
       } else {
-        apiService
-          .addRotaryEncoder(
-            this.encoderToAdd.stepperId,
-            this.encoderToAdd.ioPinA,
-            this.encoderToAdd.ioPinB,
-            this.encoderToAdd.name,
-            this.encoderToAdd.stepMultiplier
-          )
-          .then(
-            () => {
-              this.getConfiguredRotaryEncoders();
-              this.$refs["addEncoderModal"].hide();
-              this.encoderToAdd.stepperId = -1;
-              this.encoderToAdd.ioPinA = -1;
-              this.encoderToAdd.ioPinB = -1;
-              this.encoderToAdd.name = "";
-              this.encoderToAdd.stepMultiplier = 1;
-            },
-            error => {
-              alert(
-                "An error occurred while trying to add the new rotary encoder:\n" +
-                  error.response.data.error
-              );
-            }
-          );
+        if (this.encoderToAdd.mode == "edit") {
+          apiService
+            .updateRotaryEncoder(
+              this.encoderToAdd.id,
+              this.encoderToAdd.stepperId,
+              this.encoderToAdd.ioPinA,
+              this.encoderToAdd.ioPinB,
+              this.encoderToAdd.name,
+              this.encoderToAdd.stepMultiplier
+            )
+            .then(
+              () => {
+                this.getConfiguredRotaryEncoders();
+                this.closeAndResetEncoderModalForm();
+              },
+              error => {
+                alert(
+                  "An error occurred while trying to udate the existing encoder config:\n" +
+                    error.response.data.error
+                );
+              }
+            );
+        } else {
+          apiService
+            .addRotaryEncoder(
+              this.encoderToAdd.stepperId,
+              this.encoderToAdd.ioPinA,
+              this.encoderToAdd.ioPinB,
+              this.encoderToAdd.name,
+              this.encoderToAdd.stepMultiplier
+            )
+            .then(
+              () => {
+                this.getConfiguredRotaryEncoders();
+                this.$refs["addEncoderModal"].hide();
+                this.encoderToAdd.stepperId = -1;
+                this.encoderToAdd.ioPinA = -1;
+                this.encoderToAdd.ioPinB = -1;
+                this.encoderToAdd.name = "";
+                this.encoderToAdd.stepMultiplier = 1;
+              },
+              error => {
+                alert(
+                  "An error occurred while trying to add the new rotary encoder:\n" +
+                    error.response.data.error
+                );
+              }
+            );
+        }
       }
     },
     editStepperConfiguration(id) {
@@ -759,8 +836,10 @@ export default {
       ) {
         return stepperConfig.id == id;
       });
-      if(stepperConfigToEdit.length != 1){
-        alert("a problem occured while trying to find the matching stepper configuration. Maybe reloading the page will solve the issue");
+      if (stepperConfigToEdit.length != 1) {
+        alert(
+          "a problem occured while trying to find the matching stepper configuration. Maybe reloading the page will solve the issue"
+        );
         return;
       }
       stepperConfigToEdit = stepperConfigToEdit[0];
@@ -830,27 +909,28 @@ export default {
       );
     },
     editSwitchConfiguration(id) {
-      var switchToEdit = this.configuredSwitches.filter(function(
-        switchConfig
-      ) {
+      var switchToEdit = this.configuredSwitches.filter(function(switchConfig) {
         return switchConfig.id == id;
       });
-      if(switchToEdit.length != 1){
-        alert("a problem occured while trying to find the matching switch configuration. Maybe reloading the page will solve the issue");
+      if (switchToEdit.length != 1) {
+        alert(
+          "a problem occured while trying to find the matching switch configuration. Maybe reloading the page will solve the issue"
+        );
         return;
       }
       switchToEdit = switchToEdit[0];
-      console.log(
-        "editSwitchConfiguration called for id " + id,
-        switchToEdit
-      );
+      console.log("editSwitchConfiguration called for id " + id, switchToEdit);
       this.$refs["addSwitchModal"].show();
       this.switchToAdd.stepperId = switchToEdit.stepperId;
       this.switchToAdd.ioPinNumber = switchToEdit.ioPin;
       this.switchToAdd.positionName = switchToEdit.name;
-      this.switchToAdd.switchPosition = switchToEdit.position;
+      this.switchToAdd.switchPosition = switchToEdit.switchPosition;
       this.switchToAdd.switchType = switchToEdit.switchType;
-      this.switchToAdd.switchTypeActiveState = (switchToEdit.isActiveHighType) ? 1 : 2;
+      if (switchToEdit.isActiveHighType) {
+        this.switchToAdd.switchTypeActiveState = 1;
+      } else {
+        this.switchToAdd.switchTypeActiveState = 2;
+      }
     },
     editRotaryEncoderConfiguration(id) {
       var encoderToEdit = this.configuredEncoders.filter(function(
@@ -858,8 +938,10 @@ export default {
       ) {
         return encoderConfig.id == id;
       });
-      if(encoderToEdit.length != 1){
-        alert("a problem occured while trying to find the matching encoder configuration. Maybe reloading the page will solve the issue");
+      if (encoderToEdit.length != 1) {
+        alert(
+          "a problem occured while trying to find the matching encoder configuration. Maybe reloading the page will solve the issue"
+        );
         return;
       }
       encoderToEdit = encoderToEdit[0];
@@ -873,7 +955,9 @@ export default {
       this.encoderToAdd.ioPinB = encoderToEdit.ioPinB;
       this.encoderToAdd.name = encoderToEdit.name;
       this.encoderToAdd.stepMultiplier = encoderToEdit.stepMultiplier;
-    },
+      this.encoderToAdd.id = encoderToEdit.id;
+      this.encoderToAdd.mode = "edit";
+    }
   },
   mounted() {
     this.getConfiguredSteppers();
