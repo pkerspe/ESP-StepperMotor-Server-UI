@@ -169,7 +169,11 @@
               <label for="switchType">Switch type</label>
               <select id="switchType" class="form-control" v-model="switchToAdd.switchType">
                 <option value="-1" selected>please select the type of this switch</option>
-                <option v-for="switchType in switchTypes" :key="switchType.bitMask" :value="switchType.bitMask">{{switchType.displayName}}</option>
+                <option
+                  v-for="switchType in switchTypes"
+                  :key="switchType.bitMask"
+                  :value="switchType.bitMask"
+                >{{switchType.displayName}}</option>
               </select>
             </div>
             <div class="form-check form-check-inline">
@@ -571,18 +575,18 @@ export default {
   },
   methods: {
     saveConfig() {
-      apiService
-        .saveConfigurationToSpiffs()
-        .then(() => {
+      apiService.saveConfigurationToSpiffs().then(response => {
+        console.log(response);
+        if (response.status == 200 || response.status == 204) {
           this.$toastr.success("Configuration saved successful", {
             timeOut: 1500
           });
-        })
-        .error(() => {
-          this.$toastr.error("Failed to save configuraiton to device", {
+        } else {
+          this.$toastr.error("Failed to save configuration", {
             timeOut: 1500
           });
-        });
+        }
+      });
     },
     setPinUsedByInfo(pinNumber, usedByString) {
       this.allowedIoOutputPins.forEach(pinObject => {
@@ -988,7 +992,8 @@ export default {
       } else {
         this.switchToAdd.switchTypeActiveState = 2;
       }
-      this.switchToAdd.switchType = switchTypeDecoded &= ~this.switchToAdd.switchTypeActiveState;
+      this.switchToAdd.switchType = switchTypeDecoded &= ~this.switchToAdd
+        .switchTypeActiveState;
       this.switchToAdd.mode = "edit";
       console.log("editSwitchConfiguration called for id " + id, switchToEdit);
     },

@@ -10,7 +10,7 @@ export class ApiService {
 
     saveConfigurationToSpiffs(){
         const url = `${API_URL}/api/config/save`;
-        return axios.get(url).then(response => response.data);
+        return axios.get(url).then(response => response);
     }
     
     getConfiguredStepperMotors() {
