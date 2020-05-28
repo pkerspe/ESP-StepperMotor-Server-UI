@@ -1,6 +1,10 @@
 <template>
   <div class="setup pb-5">
     <span class="saveConfigBanner">
+      <b-button variant="warning" class="mr-4" v-on:click="saveConfig(true)">
+        <font-awesome-icon icon="file-download" />&nbsp;save and download current configuration
+      </b-button>
+
       <b-button variant="warning" v-on:click="saveConfig">
         <font-awesome-icon icon="save" />&nbsp;save current configuration to device
       </b-button>
@@ -574,13 +578,16 @@ export default {
     RotaryEncoderDetails
   },
   methods: {
-    saveConfig() {
+    saveConfig(triggerDownload) {
       apiService.saveConfigurationToSpiffs().then(response => {
         console.log(response);
         if (response.status == 200 || response.status == 204) {
           this.$toastr.success("Configuration saved successful", {
             timeOut: 1500
           });
+          if(triggerDownload){
+            location.href = process.env.VUE_APP_REST_API_BASE_URL + "/config.json";
+          }
         } else {
           this.$toastr.error("Failed to save configuration", {
             timeOut: 1500
