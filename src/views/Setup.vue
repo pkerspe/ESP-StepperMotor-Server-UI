@@ -6,6 +6,9 @@
       </b-button>
     </span>
 
+    <!------------------------>
+    <!------ STEPPERS -------->
+    <!------------------------>
     <stepper-motor-details
       v-for="stepperConfiguration in configuredSteppers"
       v-bind:key="'stepper-'+stepperConfiguration.id"
@@ -89,11 +92,15 @@
       </div>
     </div>
 
+    <!------------------------>
+    <!------ SWITCHES -------->
+    <!------------------------>
     <position-switch-details
       v-for="switchConfiguration in configuredSwitches"
       v-bind:key="'switch-'+switchConfiguration.id"
       v-bind:switchConfiguration="switchConfiguration"
       v-bind:configuredSteppers="configuredSteppers"
+      v-bind:switchTypes="switchTypes"
       v-on:delete="deleteSwitchConfiguration"
       v-on:edit="editSwitchConfiguration"
     ></position-switch-details>
@@ -109,6 +116,7 @@
           id="add-switch"
           title="Add a new limit switch configuration"
           @ok="addSwitch"
+          @cancel="closeAndResetSwitchModalForm"
           ref="addSwitchModal"
         >
           <form>
@@ -161,10 +169,7 @@
               <label for="switchType">Switch type</label>
               <select id="switchType" class="form-control" v-model="switchToAdd.switchType">
                 <option value="-1" selected>please select the type of this switch</option>
-                <option value="4">homing switch begin/left/bottom</option>
-                <option value="8">homing switch end/right/top</option>
-                <option value="16">general position switch</option>
-                <option value="32">emergency stop switch</option>
+                <option v-for="switchType in switchTypes" :key="switchType.bitMask" :value="switchType.bitMask">{{switchType.displayName}}</option>
               </select>
             </div>
             <div class="form-check form-check-inline">
@@ -212,6 +217,9 @@
       </div>
     </div>
 
+    <!------------------------>
+    <!------ ENCODERS -------->
+    <!------------------------>
     <rotary-encoder-details
       v-for="encoderConfiguration in configuredEncoders"
       v-bind:key="'encoder-'+encoderConfiguration.id"
@@ -353,6 +361,24 @@ export default {
   name: "setup",
   data: function() {
     return {
+      switchTypes: [
+        {
+          bitMask: 4,
+          displayName: "homing switch begin/left/bottom"
+        },
+        {
+          bitMask: 8,
+          displayName: "homing switch end/right/top"
+        },
+        {
+          bitMask: 16,
+          displayName: "general position switch"
+        },
+        {
+          bitMask: 32,
+          displayName: "emergency stop switch"
+        }
+      ],
       stepperToAdd: {
         stepPin: -1,
         dirPin: -1,
@@ -545,17 +571,18 @@ export default {
   },
   methods: {
     saveConfig() {
-      apiService.saveConfigurationToSpiffs().then(() => {
-        this.$toastr.success(
-          "Configuration saved successful",
-          { timeOut: 1500 }
-        )
-      }).error(()=>{
-        this.$toastr.error(
-          "Failed to save configuraiton to device",
-          { timeOut: 1500 }
-        )
-      });
+      apiService
+        .saveConfigurationToSpiffs()
+        .then(() => {
+          this.$toastr.success("Configuration saved successful", {
+            timeOut: 1500
+          });
+        })
+        .error(() => {
+          this.$toastr.error("Failed to save configuraiton to device", {
+            timeOut: 1500
+          });
+        });
     },
     setPinUsedByInfo(pinNumber, usedByString) {
       this.allowedIoOutputPins.forEach(pinObject => {
@@ -700,6 +727,17 @@ export default {
         }
       }
     },
+    closeAndResetSwitchModalForm() {
+      this.$refs["addSwitchModal"].hide();
+      this.switchToAdd.id = "";
+      this.switchToAdd.stepperId = -1;
+      this.switchToAdd.ioPinNumber = -1;
+      this.switchToAdd.switchPosition = -1;
+      this.switchToAdd.positionName = "";
+      this.switchToAdd.switchType = -1;
+      this.switchToAdd.switchTypeActiveState = "";
+      this.switchToAdd.mode = "add";
+    },
     addSwitch(bvModalEvt) {
       // Prevent modal from closing
       bvModalEvt.preventDefault();
@@ -721,34 +759,53 @@ export default {
       } else if (this.switchToAdd.switchTypeActiveState == "") {
         alert("Please select the active state of the switch");
       } else {
-        let switchTypeBitMask =
-          this.switchToAdd.switchType + this.switchToAdd.switchTypeActiveState;
-        apiService
-          .addPositionSwitch(
-            this.switchToAdd.stepperId,
-            this.switchToAdd.ioPinNumber,
-            this.switchToAdd.positionName,
-            this.switchToAdd.switchPosition,
-            switchTypeBitMask
-          )
-          .then(
-            () => {
-              this.getConfiguredSwitches();
-              this.$refs["addSwitchModal"].hide();
-              this.switchToAdd.stepperId = -1;
-              this.switchToAdd.ioPinNumber = -1;
-              this.switchToAdd.positionName = "";
-              this.switchToAdd.switchPosition = -1;
-              this.switchToAdd.switchType = -1;
-              this.switchToAdd.switchTypeActiveState = "";
-            },
-            error => {
-              alert(
-                "An error occurred while trying to add the new stepper:\n" +
-                  error.response.data.error
-              );
-            }
-          );
+        let switchTypeBitMask = this.switchToAdd.switchType;
+        switchTypeBitMask |= this.switchToAdd.switchTypeActiveState;
+
+        if (this.switchToAdd.mode == "edit") {
+          apiService
+            .updatePositionSwitch(
+              this.switchToAdd.id,
+              this.switchToAdd.stepperId,
+              this.switchToAdd.ioPinNumber,
+              this.switchToAdd.positionName,
+              this.switchToAdd.switchPosition,
+              switchTypeBitMask
+            )
+            .then(
+              () => {
+                this.getConfiguredSwitches();
+                this.closeAndResetSwitchModalForm();
+              },
+              error => {
+                alert(
+                  "An error occurred while trying to udate the switch config:\n" +
+                    error.response.data.error
+                );
+              }
+            );
+        } else {
+          apiService
+            .addPositionSwitch(
+              this.switchToAdd.stepperId,
+              this.switchToAdd.ioPinNumber,
+              this.switchToAdd.positionName,
+              this.switchToAdd.switchPosition,
+              switchTypeBitMask
+            )
+            .then(
+              () => {
+                this.getConfiguredSwitches();
+                this.closeAndResetSwitchModalForm();
+              },
+              error => {
+                alert(
+                  "An error occurred while trying to add the new stepper:\n" +
+                    error.response.data.error
+                );
+              }
+            );
+        }
       }
     },
     closeAndResetEncoderModalForm() {
@@ -919,18 +976,21 @@ export default {
         return;
       }
       switchToEdit = switchToEdit[0];
-      console.log("editSwitchConfiguration called for id " + id, switchToEdit);
       this.$refs["addSwitchModal"].show();
+      this.switchToAdd.id = switchToEdit.id;
       this.switchToAdd.stepperId = switchToEdit.stepperId;
       this.switchToAdd.ioPinNumber = switchToEdit.ioPin;
       this.switchToAdd.positionName = switchToEdit.name;
       this.switchToAdd.switchPosition = switchToEdit.switchPosition;
-      this.switchToAdd.switchType = switchToEdit.switchType;
+      var switchTypeDecoded = switchToEdit.type;
       if (switchToEdit.isActiveHighType) {
         this.switchToAdd.switchTypeActiveState = 1;
       } else {
         this.switchToAdd.switchTypeActiveState = 2;
       }
+      this.switchToAdd.switchType = switchTypeDecoded &= ~this.switchToAdd.switchTypeActiveState;
+      this.switchToAdd.mode = "edit";
+      console.log("editSwitchConfiguration called for id " + id, switchToEdit);
     },
     editRotaryEncoderConfiguration(id) {
       var encoderToEdit = this.configuredEncoders.filter(function(

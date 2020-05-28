@@ -20,7 +20,7 @@
           <br />
           <strong>{{switchConfiguration.stepperId}}</strong>
           <br />
-          <strong>{{switchConfiguration.type}}</strong>
+          <strong>{{this.getDisplayNameForSwitchType()}}</strong>
           <br />
           <strong>{{(switchConfiguration.switchPosition == -1) ? 'none': switchConfiguration.switchPosition}}</strong>
           <br />
@@ -66,7 +66,8 @@ export default {
   name: "PositionSwitchDetails",
   props: {
     switchConfiguration: Object,
-    configuredSteppers: Array
+    configuredSteppers: Array,
+    switchTypes: Array
   },
   components: {
     BButton
@@ -76,10 +77,21 @@ export default {
       var matchingSteppers = this.configuredSteppers.filter(function(stepper) {
         return stepper.id == stepperId;
       });
-      if(matchingSteppers.length > 0){
-            return matchingSteppers[0].name;
+      if (matchingSteppers.length > 0) {
+        return matchingSteppers[0].name;
       }
       return "unknown";
+    },
+    getDisplayNameForSwitchType() {
+      var type = this.switchConfiguration.type;
+      var isActiveHigh = this.switchConfiguration.isActiveHighType;
+      type &= ~((isActiveHigh)?1:2);
+      var switchTypeMatchArray = this.switchTypes.filter(function(switchType) {
+        return switchType.bitMask == type;
+      });
+      if(switchTypeMatchArray.length > 0){
+        return switchTypeMatchArray[0].displayName;
+      }
     }
   }
 };
