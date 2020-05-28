@@ -5,7 +5,7 @@
         <font-awesome-icon icon="file-download" />&nbsp;save and download current configuration
       </b-button>
 
-      <b-button variant="warning" v-on:click="saveConfig">
+      <b-button variant="warning" v-on:click="saveConfig(false)">
         <font-awesome-icon icon="save" />&nbsp;save current configuration to device
       </b-button>
     </span>
