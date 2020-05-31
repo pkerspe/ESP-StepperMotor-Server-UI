@@ -8,22 +8,17 @@
                 <div class="p-1 pl-3">
                     Name: <br/>
                     ID:<br/>
-                    Position:<br/>
-                    Motion completed:<br/>
-                    Velocity:<br/>
                     Hardware IO Pins:<br/>
                     Motion-Settings:<br/>
                 </div>
                 <div class="p-1">
                     <strong>{{stepperConfiguration.name}}</strong><br/>
                     {{stepperConfiguration.id}}<br/>
-                    {{stepperConfiguration.position.mm}} mm / {{stepperConfiguration.position.revs}} revs /
-                    {{stepperConfiguration.position.steps}} steps<br/>
-                    {{stepperConfiguration.stopped}}<br/>
-                    {{stepperConfiguration.velocity.rev_s}} revs/sec / {{stepperConfiguration.velocity.mm_s}} mm_s /
-                    {{stepperConfiguration.velocity.steps_s}} steps/sec<br/>
+
                     Step-Pin: {{stepperConfiguration.stepPin}} / Dir-Pin: {{stepperConfiguration.dirPin}}<br/>
-                    Steps/mm: {{stepperConfiguration.stepsPerMM}} / Steps/revolution: {{stepperConfiguration.stepsPerRev}}
+                    Steps/mm: {{stepperConfiguration.stepsPerMM}} / Steps/revolution: {{stepperConfiguration.stepsPerRev}}<br/>
+                    Microstepping: {{stepperConfiguration.microsteppingDivisor}}
+
                 </div>
                 <div class="hover-btn">
                     <b-button variant="danger" v-on:click="$emit('delete',stepperConfiguration.id)">

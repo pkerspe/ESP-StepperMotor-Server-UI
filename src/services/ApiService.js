@@ -6,18 +6,18 @@ const API_URL = process.env.VUE_APP_REST_API_BASE_URL;
 const mock = false;
 
 export class ApiService {
-    constructor() {}
+    constructor() { }
 
-    saveConfigurationToSpiffs(){
+    saveConfigurationToSpiffs() {
         const url = `${API_URL}/api/config/save`;
         return axios.get(url).then(response => response);
     }
-    
+
     getConfiguredStepperMotors() {
         const url = `${API_URL}/api/steppers`;
         if (mock) {
             var p1 = new Promise(
-                function(resolve) {
+                function (resolve) {
                     resolve(steppersMock.steppers);
                 });
             return p1;
@@ -32,22 +32,28 @@ export class ApiService {
         return axios.get(url).then(response => response.data);
     }
 
-    addStepperMotor(stepPin, dirPin, displayName) {
+    addStepperMotor(stepPin, dirPin, stepsPerRev, stepsPerMM, microsteppingDivisor, displayName) {
         const url = `${API_URL}/api/steppers`;
         var params = {
             stepPin: stepPin,
             dirPin: dirPin,
-            name: displayName
+            name: displayName,
+            stepsPerRev: parseInt(stepsPerRev),
+            stepsPerMM: parseInt(stepsPerMM),
+            microsteppingDivisor: parseInt(microsteppingDivisor)
         };
         return axios.post(url, params).then(response => response.data);
     }
 
-    updateStepperMotor(id, stepPin, dirPin, displayName) {
+    updateStepperMotor(id, stepPin, dirPin, stepsPerRev, stepsPerMM, microsteppingDivisor, displayName) {
         const url = `${API_URL}/api/steppers?id=${id}`;
         var params = {
             stepPin: stepPin,
             dirPin: dirPin,
-            name: displayName
+            name: displayName,
+            stepsPerRev: parseInt(stepsPerRev),
+            stepsPerMM: parseInt(stepsPerMM),
+            microsteppingDivisor: parseInt(microsteppingDivisor)
         };
         return axios.put(url, params).then(response => response.data);
     }
@@ -101,7 +107,7 @@ export class ApiService {
         const url = `${API_URL}/api/switches`;
         if (mock) {
             var p1 = new Promise(
-                function(resolve) {
+                function (resolve) {
                     resolve(switchesMock.switches);
                 });
             return p1;
@@ -165,7 +171,7 @@ export class ApiService {
         const url = `${API_URL}/api/status`;
         if (mock) {
             var p1 = new Promise(
-                function(resolve) {
+                function (resolve) {
                     resolve(switchesMock.status);
                 });
             return p1;

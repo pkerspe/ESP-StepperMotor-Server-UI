@@ -50,6 +50,7 @@
                 maxlength="20"
               />
             </div>
+            <!-------- HARDWARE IO PINS ----------->
             <div class="form-group">
               <label for="stepPin">ESP IO pin for step signal</label>
               <select
@@ -90,6 +91,55 @@
                 select the IO pin of the ESP that is
                 connected to the direction-pin on the stepper driver board
               </small>
+            </div>
+            <!------ MOTION SETTINGS: STEPS/MM and STEPS/REV ----------->
+            <div class="form-group">
+              <label for="stepsPerRev">Steps per revolution</label>
+              <input
+                type="number"
+                class="form-control"
+                id="stepsPerRev"
+                v-model="stepperToAdd.stepsPerRev"
+                min="1"
+                max="1000000"
+              />
+              <small
+                id="stepsPerRevHelp"
+                class="form-text text-muted"
+              >set the number of steps of the stepper motor (full steps, not microsteps!) needed to perform one revolution of the motor axis. For regular 1.8degree stepper motors this value should be 200 (360 degree / 1.8 degree = 200)</small>
+            </div>
+            <div class="form-group">
+              <label for="stepsPerRev">Steps per mm</label>
+              <input
+                type="number"
+                class="form-control"
+                id="stepsPerMM"
+                v-model="stepperToAdd.stepsPerMM"
+                min="1"
+                max="1000000"
+              />
+              <small
+                id="stepsPerMMHelp"
+                class="form-text text-muted"
+              >set the number of steps of the stepper motor (full steps, not microsteps!) needed to perform a linear movement of mm on the axis this stepper moto is connected to. If you are not using lienar motion, just leave this value to the default value. Just be prepared that calls to the move functions that use mm as unit, will not work properly. The other move functions (for steps and rev) will not be affected by this value.</small>
+            </div>
+            <div class="form-group">
+              <label for="stepsPerRev">Microsteps per step</label>
+              <select id="stepsPerRev" name="stepsPerRev" class="form-control" v-model="stepperToAdd.microsteppingDivisor">
+                <option value="1" selected>Microstepping OFF</option>
+                <option value="2" selected>2</option>
+                <option value="4" selected>4</option>
+                <option value="8" selected>8</option>
+                <option value="16" selected>16</option>
+                <option value="32" selected>32</option>
+                <option value="64" selected>64</option>
+                <option value="128" selected>128</option>
+                <option value="256" selected>256</option>
+              </select>
+              <small
+                id="microsteppingDivisorMHelp"
+                class="form-text text-muted"
+              >The number of microsteps per step that are configured in you stepper driver. Set to 1 if microstepping is not enabled</small>
             </div>
           </form>
         </b-modal>
@@ -390,6 +440,8 @@ export default {
       stepperToAdd: {
         stepPin: -1,
         dirPin: -1,
+        stepPerMM: 100,
+        stepPerRev: 200,
         name: ""
       },
       switchToAdd: {
@@ -585,8 +637,9 @@ export default {
           this.$toastr.success("Configuration saved successful", {
             timeOut: 1500
           });
-          if(triggerDownload){
-            location.href = process.env.VUE_APP_REST_API_BASE_URL + "/config.json";
+          if (triggerDownload) {
+            location.href =
+              process.env.VUE_APP_REST_API_BASE_URL + "/config.json";
           }
         } else {
           this.$toastr.error("Failed to save configuration", {
@@ -683,7 +736,10 @@ export default {
       this.stepperToAdd.id = "";
       this.stepperToAdd.stepPin = -1;
       this.stepperToAdd.dirPin = -1;
-      this.stepperToAdd.name = "";
+      this.stepperToAdd.stepsPerMM = 100;
+      this.stepperToAdd.stepsPerRev = 200;
+      (this.stepperToAdd.microsteppingDivisor = 1),
+        (this.stepperToAdd.name = "");
       this.stepperToAdd.mode = "add";
     },
     addStepperConfiguration(bvModalEvt) {
@@ -702,6 +758,9 @@ export default {
               this.stepperToAdd.id,
               this.stepperToAdd.stepPin,
               this.stepperToAdd.dirPin,
+              this.stepperToAdd.stepsPerRev,
+              this.stepperToAdd.stepsPerMM,
+              this.stepperToAdd.microsteppingDivisor,
               this.stepperToAdd.name
             )
             .then(
@@ -721,6 +780,9 @@ export default {
             .addStepperMotor(
               this.stepperToAdd.stepPin,
               this.stepperToAdd.dirPin,
+              this.stepperToAdd.stepsPerRev,
+              this.stepperToAdd.stepsPerMM,
+              this.stepperToAdd.microsteppingDivisor,
               this.stepperToAdd.name
             )
             .then(
@@ -918,6 +980,10 @@ export default {
       this.$refs["addStepperModal"].show();
       this.stepperToAdd.stepPin = stepperConfigToEdit.stepPin;
       this.stepperToAdd.dirPin = stepperConfigToEdit.dirPin;
+      this.stepperToAdd.stepsPerRev = stepperConfigToEdit.stepsPerRev;
+      this.stepperToAdd.stepsPerMM = stepperConfigToEdit.stepsPerMM;
+      this.stepperToAdd.microsteppingDivisor =
+        stepperConfigToEdit.microsteppingDivisor;
       this.stepperToAdd.name = stepperConfigToEdit.name;
       this.stepperToAdd.id = stepperConfigToEdit.id;
       this.stepperToAdd.mode = "edit";
@@ -931,6 +997,8 @@ export default {
             return stepper.id != id;
           });
           //reload other configuration, since the switches and encoders might have been linked ot the stepper motor and as such would have been deleted as well
+          //and also used pins need to be updated
+          this.getConfiguredSteppers();
           this.getConfiguredSwitches();
           this.getConfiguredRotaryEncoders();
         },
