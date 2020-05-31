@@ -12,6 +12,7 @@
                     Motion completed:<br/>
                     Velocity:<br/>
                     Hardware IO Pins:<br/>
+                    Motion-Settings:<br/>
                 </div>
                 <div class="p-1">
                     <strong>{{stepperConfiguration.name}}</strong><br/>
@@ -21,7 +22,8 @@
                     {{stepperConfiguration.stopped}}<br/>
                     {{stepperConfiguration.velocity.rev_s}} revs/sec / {{stepperConfiguration.velocity.mm_s}} mm_s /
                     {{stepperConfiguration.velocity.steps_s}} steps/sec<br/>
-                    Step-Pin: {{stepperConfiguration.stepPin}} / Dir-Pin: {{stepperConfiguration.dirPin}}
+                    Step-Pin: {{stepperConfiguration.stepPin}} / Dir-Pin: {{stepperConfiguration.dirPin}}<br/>
+                    Steps/mm: {{stepperConfiguration.stepsPerMM}} / Steps/revolution: {{stepperConfiguration.stepsPerRev}}
                 </div>
                 <div class="hover-btn">
                     <b-button variant="danger" v-on:click="$emit('delete',stepperConfiguration.id)">

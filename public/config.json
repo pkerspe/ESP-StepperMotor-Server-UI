@@ -13,7 +13,8 @@
             "stepPin": 32,
             "directionPin": 31,
             "name": "X-Axis",
-            "stepsPerRev": 100,
+            "stepsPerRev": 200,
+            "stepsPerMM": 100,
             "microsteppingDivisor": 32,
             "rpmLimit": 1000
         },
@@ -22,7 +23,8 @@
             "stepPin": 22,
             "directionPin": 23,
             "name": "Y-Axis",
-            "stepsPerRev": 100,
+            "stepsPerRev": 200,
+            "stepsPerMM": 100,
             "microsteppingDivisor": 32,
             "rpmLimit": 1000
         }
