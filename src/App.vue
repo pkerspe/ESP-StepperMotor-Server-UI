@@ -16,25 +16,32 @@
         <ul class="nav flex-column">
           <li class="nav-item" v-on:click="hideMenu">
             <router-link to="/" class="nav-link">
-              <font-awesome-icon icon="tachometer-alt" /> Home
+              <font-awesome-icon icon="tachometer-alt" />Home
             </router-link>
           </li>
           <li class="nav-item" v-on:click="hideMenu">
             <router-link to="/control" class="nav-link">
-              <font-awesome-icon icon="gamepad" /> Control
+              <font-awesome-icon icon="gamepad" />Control
             </router-link>
           </li>
           <li class="nav-item" v-on:click="hideMenu">
             <router-link to="/setup" class="nav-link">
-              <font-awesome-icon icon="cogs" /> Setup
+              <font-awesome-icon icon="cogs" />Setup
             </router-link>
           </li>
           <li class="nav-item" v-on:click="hideMenu">
             <router-link to="/about" class="nav-link">
-              <font-awesome-icon icon="info-circle" /> About
+              <font-awesome-icon icon="info-circle" />About
             </router-link>
           </li>
         </ul>
+        <b-button class="mt-3 m-2" variant="danger" v-on:click="triggerEmergencyStop()">
+          <font-awesome-icon icon="stop"></font-awesome-icon>&nbsp;trigger Emergency Stop
+        </b-button>
+
+        <b-button class="m-2" variant="primary" v-on:click="revokeEmergencyStop()">
+          <font-awesome-icon icon="play"></font-awesome-icon>&nbsp;Release Emergency Stop
+        </b-button>
       </div>
     </aside>
     <!-- End Main Sidebar -->
@@ -118,6 +125,7 @@
 <script>
 /* eslint-disable no-console */
 import { ApiService } from "./services/ApiService";
+import { BButton } from "bootstrap-vue";
 
 const apiService = new ApiService();
 
@@ -132,7 +140,22 @@ export default {
       serverVersion: "N/A"
     };
   },
+  components: {
+    BButton
+  },
   methods: {
+    triggerEmergencyStop() {
+      apiService.triggerEmergencyStop().then(data => {
+        //do something
+        console.log(data);
+      });
+    },
+    revokeEmergencyStop() {
+      apiService.revokeEmergencyStop().then(data => {
+        //do something
+        console.log(data);
+      });
+    },
     toggleNavbar: function() {
       this.isOpen = !this.isOpen;
     },
@@ -157,7 +180,9 @@ export default {
               );
             }
           } else {
-            console.log("invalid server response from status endpoint. Will try again later");
+            console.log(
+              "invalid server response from status endpoint. Will try again later"
+            );
           }
           setTimeout(() => {
             this.getOnlineStatus();

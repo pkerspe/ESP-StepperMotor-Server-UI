@@ -78,6 +78,16 @@ export class ApiService {
         return axios.get(url).then(response => response.data);
     }
 
+    triggerEmergencyStop(){
+        const url = `${API_URL}/api/emergencystop/trigger`;
+        return axios.get(url).then(response => response.data);
+    }
+    
+    revokeEmergencyStop(){
+        const url = `${API_URL}/api/emergencystop/revoke`;
+        return axios.get(url).then(response => response.data);
+    }
+
     deleteStepperMotor(stepperId) {
         const url = `${API_URL}/api/steppers?id=${stepperId}`;
         return axios.delete(url).then(response => response.data);
