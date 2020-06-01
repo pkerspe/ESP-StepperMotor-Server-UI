@@ -73,6 +73,11 @@ export class ApiService {
         return axios.post(url).then(response => response.data);
     }
 
+    stopStepper(stepperId){
+        const url = `${API_URL}/api/steppers/stop?id=${stepperId}`;
+        return axios.get(url).then(response => response.data);
+    }
+
     deleteStepperMotor(stepperId) {
         const url = `${API_URL}/api/steppers?id=${stepperId}`;
         return axios.delete(url).then(response => response.data);

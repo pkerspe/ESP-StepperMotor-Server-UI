@@ -36,7 +36,7 @@
         <b-button variant="success" class="m-3" v-on:click="moveBack">
           <font-awesome-icon icon="backward"></font-awesome-icon>
         </b-button>
-        <b-button class="m-3" v-on:click="stop" disabled>
+        <b-button class="m-3" v-on:click="stop">
           <font-awesome-icon icon="stop"></font-awesome-icon>
         </b-button>
         <b-button variant="success" class="m-3" v-on:click="moveForward">
@@ -65,7 +65,7 @@
 <script>
 /* eslint-disable no-console */
 import { ApiService } from "../services/ApiService";
-import {BButton} from 'bootstrap-vue';
+import { BButton } from "bootstrap-vue";
 
 const apiService = new ApiService();
 
@@ -86,7 +86,10 @@ export default {
   },
   methods: {
     stop() {
-      alert("not implemented yet");
+      apiService.stopStepper(this.stepperConfiguration.id).then(data => {
+        //do something
+        console.log(data);
+      });
     },
     moveForward() {
       apiService
