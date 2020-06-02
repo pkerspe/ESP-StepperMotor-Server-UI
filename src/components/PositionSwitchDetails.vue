@@ -3,7 +3,8 @@
     <div class="card-body p-3">
       <div class="d-flex flex-row">
         <div class="d-none d-sm-inline-block align-self-center p-1">
-          <img src="../assets/switch.svg" style="width:70px;" />
+          <img v-if="(this.switchConfiguration.type > 32)" src="../assets/emergencyStopSwitch.svg" style="width:70px;" />
+          <img v-if="(this.switchConfiguration.type < 32)" src="../assets/switch.svg" style="width:70px;" />
         </div>
         <div class="p-1 pl-3">
           Name:
