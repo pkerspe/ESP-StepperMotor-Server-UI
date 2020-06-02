@@ -125,7 +125,12 @@
             </div>
             <div class="form-group">
               <label for="stepsPerRev">Microsteps per step</label>
-              <select id="stepsPerRev" name="stepsPerRev" class="form-control" v-model="stepperToAdd.microsteppingDivisor">
+              <select
+                id="stepsPerRev"
+                name="stepsPerRev"
+                class="form-control"
+                v-model="stepperToAdd.microsteppingDivisor"
+              >
                 <option value="1" selected>Microstepping OFF</option>
                 <option value="2" selected>2</option>
                 <option value="4" selected>4</option>
@@ -205,21 +210,6 @@
               </small>
             </div>
             <div class="form-group">
-              <label for="stepperId">Stepper motor the switch belongs to</label>
-              <select id="stepperId" class="form-control" v-model="switchToAdd.stepperId">
-                <option value="-1" selected>please select a stepper motor</option>
-                <option
-                  v-for="stepperConfig in configuredSteppers"
-                  :value="stepperConfig.id"
-                  v-bind:key="'stepper'+stepperConfig.id"
-                >{{stepperConfig.name}} ({{stepperConfig.id}})</option>
-              </select>
-              <small id="stepperIdHelp" class="form-text text-muted">
-                select the stepper motor to which
-                this switch should be associated with
-              </small>
-            </div>
-            <div class="form-group">
               <label for="switchType">Switch type</label>
               <select id="switchType" class="form-control" v-model="switchToAdd.switchType">
                 <option value="-1" selected>please select the type of this switch</option>
@@ -248,7 +238,6 @@
                 v-model="switchToAdd.switchTypeActiveState"
                 v-bind:value="2"
               />
-
               <label class="form-check-label" for="activeLow">Active-Low</label>
             </div>
             <div>
@@ -257,7 +246,22 @@
                 and its active state
               </small>
             </div>
-            <div class="form-group">
+            <div v-if="switchToAdd.switchType != this.switchTypes[3].bitMask" class="form-group">
+              <label for="stepperId">Stepper motor the switch belongs to</label>
+              <select id="stepperId" class="form-control" v-model="switchToAdd.stepperId">
+                <option value="-1" selected>please select a stepper motor</option>
+                <option
+                  v-for="stepperConfig in configuredSteppers"
+                  :value="stepperConfig.id"
+                  v-bind:key="'stepper'+stepperConfig.id"
+                >{{stepperConfig.name}} ({{stepperConfig.id}})</option>
+              </select>
+              <small id="stepperIdHelp" class="form-text text-muted">
+                select the stepper motor to which
+                this switch should be associated with
+              </small>
+            </div>
+            <div v-if="switchToAdd.switchType != this.switchTypes[3].bitMask" class="form-group">
               <label for="switchPosition">
                 Position (in steps) of the switch or -1 for no specific
                 position
@@ -812,13 +816,22 @@ export default {
       this.switchToAdd.mode = "add";
     },
     addSwitch(bvModalEvt) {
+      //emergency switch is currently only supported as global switch, so no need for stepper ID
+      if (this.switchToAdd.switchType == this.switchTypes[3].bitMask) {
+        this.switchToAdd.switchPosition = -1;
+        this.switchToAdd.stepperId = -1;
+      }
+
       // Prevent modal from closing
       bvModalEvt.preventDefault();
       if (this.switchToAdd.positionName == "") {
         alert("Please enter a name for the new switch");
       } else if (this.switchToAdd.ioPinNumber == -1) {
         alert("Please select the IO pin the switch is connected to");
-      } else if (this.switchToAdd.stepperId == -1) {
+      } else if (
+        this.switchToAdd.switchType != this.switchTypes[3].bitMask &&
+        this.switchToAdd.stepperId == -1
+      ) {
         alert("Please select the stepper motor this switch is used for");
       } else if (
         this.switchToAdd.switchPosition == "" ||
