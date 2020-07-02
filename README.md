@@ -1,5 +1,7 @@
 ![Node.js CI](https://github.com/pkerspe/ESP-StepperMotor-Server-UI/workflows/Node.js%20CI/badge.svg)
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e7355b70980e44a4b7fc2f62503db196)](https://app.codacy.com/manual/pkerspe/ESP-StepperMotor-Server-UI?utm_source=github.com&utm_medium=referral&utm_content=pkerspe/ESP-StepperMotor-Server-UI&utm_campaign=Badge_Grade_Dashboard)
+
 This project is part of the https://github.com/pkerspe/ESP-StepperMotor-Server project.
 This part is solely the WEB UI that will be uploaded to the ESP32 to provide a web user interface for the ESP-StepperMotor-Server.
 
@@ -8,7 +10,7 @@ https://github.com/pkerspe/ESP-StepperMotor-Server/blob/master/README.md
 
 # esp-steppermotor-server-ui
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e7355b70980e44a4b7fc2f62503db196)](https://app.codacy.com/manual/pkerspe/ESP-StepperMotor-Server-UI?utm_source=github.com&utm_medium=referral&utm_content=pkerspe/ESP-StepperMotor-Server-UI&utm_campaign=Badge_Grade_Dashboard)
+
 
 ## Project setup
 ```
