@@ -1,3 +1,5 @@
+![Node.js CI](https://github.com/pkerspe/ESP-StepperMotor-Server-UI/workflows/Node.js%20CI/badge.svg)
+
 # esp-steppermotor-server-ui
 
 ## Project setup
