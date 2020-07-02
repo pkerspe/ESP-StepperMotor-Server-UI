@@ -8,6 +8,8 @@ https://github.com/pkerspe/ESP-StepperMotor-Server/blob/master/README.md
 
 # esp-steppermotor-server-ui
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e7355b70980e44a4b7fc2f62503db196)](https://app.codacy.com/manual/pkerspe/ESP-StepperMotor-Server-UI?utm_source=github.com&utm_medium=referral&utm_content=pkerspe/ESP-StepperMotor-Server-UI&utm_campaign=Badge_Grade_Dashboard)
+
 ## Project setup
 ```
 npm install
