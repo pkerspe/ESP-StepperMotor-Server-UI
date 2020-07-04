@@ -643,7 +643,7 @@ export default {
           });
           if (triggerDownload) {
             location.href =
-              process.env.VUE_APP_REST_API_BASE_URL + "/config.json";
+              process.env.VUE_APP_REST_API_BASE_URL + "/api/config";
           }
         } else {
           this.$toastr.error("Failed to save configuration", {
