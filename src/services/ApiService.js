@@ -32,7 +32,7 @@ export class ApiService {
         return axios.get(url).then(response => response.data);
     }
 
-    addStepperMotor(stepPin, dirPin, stepsPerRev, stepsPerMM, microsteppingDivisor, displayName, breakPin, breakPinActiveState, breakEngageDelayMs, breakReleaseDelayMs) {
+    addStepperMotor(stepPin, dirPin, stepsPerRev, stepsPerMM, microsteppingDivisor, displayName, brakePin, brakePinActiveState, brakeEngageDelayMs, brakeReleaseDelayMs) {
         const url = `${API_URL}/api/steppers`;
         var params = {
             stepPin: stepPin,
@@ -41,15 +41,15 @@ export class ApiService {
             stepsPerRev: parseInt(stepsPerRev),
             stepsPerMM: parseInt(stepsPerMM),
             microsteppingDivisor: parseInt(microsteppingDivisor),
-            breakPin: parseInt(breakPin),
-            breakPinActiveState: parseInt(breakPinActiveState),
-            breakEngageDelayMs: parseInt(breakEngageDelayMs),
-            breakReleaseDelayMs: parseInt(breakReleaseDelayMs)
+            brakePin: parseInt(brakePin),
+            brakePinActiveState: parseInt(brakePinActiveState),
+            brakeEngageDelayMs: parseInt(brakeEngageDelayMs),
+            brakeReleaseDelayMs: parseInt(brakeReleaseDelayMs)
         };
         return axios.post(url, params).then(response => response.data);
     }
 
-    updateStepperMotor(id, stepPin, dirPin, stepsPerRev, stepsPerMM, microsteppingDivisor, displayName, breakPin, breakPinActiveState, breakEngageDelayMs, breakReleaseDelayMs) {
+    updateStepperMotor(id, stepPin, dirPin, stepsPerRev, stepsPerMM, microsteppingDivisor, displayName, brakePin, brakePinActiveState, brakeEngageDelayMs, brakeReleaseDelayMs) {
         const url = `${API_URL}/api/steppers?id=${id}`;
         var params = {
             stepPin: stepPin,
@@ -58,10 +58,10 @@ export class ApiService {
             stepsPerRev: parseInt(stepsPerRev),
             stepsPerMM: parseInt(stepsPerMM),
             microsteppingDivisor: parseInt(microsteppingDivisor),
-            breakPin: parseInt(breakPin),
-            breakPinActiveState: parseInt(breakPinActiveState),
-            breakEngageDelayMs: parseInt(breakEngageDelayMs),
-            breakReleaseDelayMs: parseInt(breakReleaseDelayMs)
+            brakePin: parseInt(brakePin),
+            brakePinActiveState: parseInt(brakePinActiveState),
+            brakeEngageDelayMs: parseInt(brakeEngageDelayMs),
+            brakeReleaseDelayMs: parseInt(brakeReleaseDelayMs)
         };
         return axios.put(url, params).then(response => response.data);
     }

@@ -93,86 +93,88 @@
               </small>
             </div>
             <div class="form-group">
-              <label for="breakPin">ESP IO pin for motor break (optional)</label>
+              <label for="brakePin">ESP IO pin for motor brake (optional)</label>
               <select
-                id="breakPin"
-                name="breakPin"
+                id="brakePin"
+                name="brakePin"
                 class="form-control"
-                v-model="stepperToAdd.breakPin"
+                v-model="stepperToAdd.brakePin"
               >
-                <option value="255" selected>no motor break used</option>
+                <option value="255" selected>no motor brake used</option>
                 <option
                   v-for="ioPin in allowedIoOutputPins"
                   :value="ioPin.pin"
                   :disabled="ioPin.disabled"
-                  v-bind:key="'breakPin'+(ioPin.pin)"
+                  v-bind:key="'brakePin'+(ioPin.pin)"
                 >
                   {{ioPin.label}}
                   {{ioPin.connectedDeviceNames}}
                 </option>
               </select>
-              <small id="breakPinHelp" class="form-text text-muted">
+              <small id="brakePinHelp" class="form-text text-muted">
                 select the IO pin of the ESP that is
-                connected to a motor break. Select "no motor break used" if your stepper does not have a physical break
+                connected to a motor brake. Select "no motor brake used" if your stepper does not have a physical brake
               </small>
             </div>
-            <div class="form-group" v-if="this.stepperToAdd.breakPin != 255">
-              Break settings: <br/>
+            <div class="form-group" v-if="this.stepperToAdd.brakePin != 255">
+              brake settings: <br/>
               Pin active state:
               <div class="form-check form-check-inline">
                 <input
                   class="form-check-input"
                   type="radio"
-                  id="breakActiveHigh"
-                  v-model="switchToAdd.breakPinActiveState"
+                  name="brakeActiveState"
+                  id="brakeActiveHigh"
+                  v-model="stepperToAdd.brakePinActiveState"
                   v-bind:value="1"
                 />
-                <label class="form-check-label" for="breakActiveHigh">Active-High</label>
+                <label class="form-check-label" for="brakeActiveHigh">Active-High</label>
               </div>
               <div class="form-check form-check-inline">
                 <input
                   class="form-check-input"
                   type="radio"
-                  id="breakActiveLow"
-                  v-model="switchToAdd.breakPinActiveState"
+                  name="brakeActiveState"
+                  id="brakeActiveLow"
+                  v-model="stepperToAdd.brakePinActiveState"
                   v-bind:value="2"
                 />
-                <label class="form-check-label" for="breakActiveLow">Active-Low</label>
+                <label class="form-check-label" for="brakeActiveLow">Active-Low</label>
               </div>
               <small
-                id="breakActiveStateHelp"
+                id="brakeActiveStateHelp"
                 class="form-text text-muted"
-              >set the active state of the IO pin for the motor break: active high means, the pin goes high to active the break, active low mean, that the pin goes low to activate the break.</small>
+              >set the active state of the IO pin for the motor brake: active high means, the pin goes high to active the brake, active low mean, that the pin goes low to activate the brake.</small>
             </div>
-            <div class="form-group" v-if="this.stepperToAdd.breakPin != 255">
-              <label for="breakEngageDelayMs">Delay to engage motor break</label>
+            <div class="form-group" v-if="this.stepperToAdd.brakePin != 255">
+              <label for="brakeEngageDelayMs">Delay to engage motor brake</label>
               <input
                 type="number"
                 class="form-control"
-                id="breakEngageDelayMs"
-                v-model="stepperToAdd.breakEngageDelayMs"
+                id="brakeEngageDelayMs"
+                v-model="stepperToAdd.brakeEngageDelayMs"
                 min="0"
                 max="1000000"
               />
               <small
-                id="breakEngageDelayMsHelp"
+                id="brakeEngageDelayMsHelp"
                 class="form-text text-muted"
-              >enter the delay in milliseconds between the time when the motor reached its destination and the time the break should be engaged. Default is 0ms to directly engage the break when the motor reached the position.</small>
+              >enter the delay in milliseconds between the time when the motor reached its destination and the time the brake should be engaged. Default is 0ms to directly engage the brake when the motor reached the position.</small>
             </div>
-            <div class="form-group" v-if="this.stepperToAdd.breakPin != 255">
-              <label for="breakReleaseDelayMs">Break release timeout</label>
+            <div class="form-group" v-if="this.stepperToAdd.brakePin != 255">
+              <label for="brakeReleaseDelayMs">brake release timeout</label>
               <input
                 type="number"
                 class="form-control"
-                id="breakReleaseDelayMs"
-                v-model="stepperToAdd.breakReleaseDelayMs"
+                id="brakeReleaseDelayMs"
+                v-model="stepperToAdd.brakeReleaseDelayMs"
                 min="1"
                 max="1000000"
               />
               <small
-                id="breakReleaseDelayMsHelp"
+                id="brakeReleaseDelayMsHelp"
                 class="form-text text-muted"
-              >enter the delay in milliseconds between the time when the motor break has been engaged and the time the break should be released again. Default is -1 to indicate, that the break will not be released after a timeout, but only when the motor is supposed to move again.</small>
+              >enter the delay in milliseconds between the time when the motor brake has been engaged and the time the brake should be released again. Default is -1 to indicate, that the brake will not be released after a timeout, but only when the motor is supposed to move again.</small>
               <hr>
             </div>
             <!------ MOTION SETTINGS: STEPS/MM and STEPS/REV ----------->
@@ -530,10 +532,10 @@ export default {
         stepPerMM: 100,
         stepPerRev: 200,
         name: "",
-        breakPin: 255,
-        breakPinActiveState: -1,
-        breakEngageDelayMs: -1,
-        breakReleaseDelayMs: -1
+        brakePin: 255,
+        brakePinActiveState: 1,
+        brakeEngageDelayMs: 0,
+        brakeReleaseDelayMs: -1
       },
       switchToAdd: {
         stepperId: -1,
@@ -832,10 +834,10 @@ export default {
       this.stepperToAdd.microsteppingDivisor = 1;
       this.stepperToAdd.name = "";
       this.stepperToAdd.mode = "add";
-      this.stepperToAdd.breakPin = 255;
-      this.stepperToAdd.breakPinActiveState = 1;
-      this.stepperToAdd.breakEngageDelayMs = 0;
-      this.stepperToAdd.breakReleaseDelayMs = -1;
+      this.stepperToAdd.brakePin = 255;
+      this.stepperToAdd.brakePinActiveState = 1;
+      this.stepperToAdd.brakeEngageDelayMs = 0;
+      this.stepperToAdd.brakeReleaseDelayMs = -1;
     },
     addStepperConfiguration(bvModalEvt) {
       // Prevent modal from closing
@@ -857,10 +859,10 @@ export default {
               this.stepperToAdd.stepsPerMM,
               this.stepperToAdd.microsteppingDivisor,
               this.stepperToAdd.name,
-              this.stepperToAdd.breakPin,
-              this.stepperToAdd.breakPinActiveState,
-              this.stepperToAdd.breakEngageDelayMs,
-              this.stepperToAdd.breakReleaseDelayMs
+              this.stepperToAdd.brakePin,
+              this.stepperToAdd.brakePinActiveState,
+              this.stepperToAdd.brakeEngageDelayMs,
+              this.stepperToAdd.brakeReleaseDelayMs
             )
             .then(
               () => {
@@ -875,6 +877,7 @@ export default {
               }
             );
         } else {
+          console.log(this.stepperToAdd);
           apiService
             .addStepperMotor(
               this.stepperToAdd.stepPin,
@@ -883,10 +886,10 @@ export default {
               this.stepperToAdd.stepsPerMM,
               this.stepperToAdd.microsteppingDivisor,
               this.stepperToAdd.name,
-              this.stepperToAdd.breakPin,
-              this.stepperToAdd.breakPinActiveState,
-              this.stepperToAdd.breakEngageDelayMs,
-              this.stepperToAdd.breakReleaseDelayMs
+              this.stepperToAdd.brakePin,
+              this.stepperToAdd.brakePinActiveState,
+              this.stepperToAdd.brakeEngageDelayMs,
+              this.stepperToAdd.brakeReleaseDelayMs
             )
             .then(
               () => {
@@ -1098,10 +1101,10 @@ export default {
       this.stepperToAdd.name = stepperConfigToEdit.name;
       this.stepperToAdd.id = stepperConfigToEdit.id;
       this.stepperToAdd.mode = "edit";
-      this.stepperToAdd.breakPin = stepperConfigToEdit.breakPin;
-      this.stepperToAdd.breakPinActiveState = stepperConfigToEdit.breakPinActiveState;
-      this.stepperToAdd.breakEngageDelayMs = stepperConfigToEdit.breakEngageDelayMs;
-      this.stepperToAdd.breakReleaseDelayMs = stepperConfigToEdit.breakReleaseDelayMs;
+      this.stepperToAdd.brakePin = stepperConfigToEdit.brakePin;
+      this.stepperToAdd.brakePinActiveState = stepperConfigToEdit.brakePinActiveState;
+      this.stepperToAdd.brakeEngageDelayMs = stepperConfigToEdit.brakeEngageDelayMs;
+      this.stepperToAdd.brakeReleaseDelayMs = stepperConfigToEdit.brakeReleaseDelayMs;
     },
     deleteStepperConfiguration(id) {
       apiService.deleteStepperMotor(id).then(
