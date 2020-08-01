@@ -32,7 +32,7 @@ export class ApiService {
         return axios.get(url).then(response => response.data);
     }
 
-    addStepperMotor(stepPin, dirPin, stepsPerRev, stepsPerMM, microsteppingDivisor, displayName) {
+    addStepperMotor(stepPin, dirPin, stepsPerRev, stepsPerMM, microsteppingDivisor, displayName, breakPin, breakPinActiveState, breakEngageDelayMs, breakReleaseDelayMs) {
         const url = `${API_URL}/api/steppers`;
         var params = {
             stepPin: stepPin,
@@ -40,12 +40,16 @@ export class ApiService {
             name: displayName,
             stepsPerRev: parseInt(stepsPerRev),
             stepsPerMM: parseInt(stepsPerMM),
-            microsteppingDivisor: parseInt(microsteppingDivisor)
+            microsteppingDivisor: parseInt(microsteppingDivisor),
+            breakPin: parseInt(breakPin),
+            breakPinActiveState: parseInt(breakPinActiveState),
+            breakEngageDelayMs: parseInt(breakEngageDelayMs),
+            breakReleaseDelayMs: parseInt(breakReleaseDelayMs)
         };
         return axios.post(url, params).then(response => response.data);
     }
 
-    updateStepperMotor(id, stepPin, dirPin, stepsPerRev, stepsPerMM, microsteppingDivisor, displayName) {
+    updateStepperMotor(id, stepPin, dirPin, stepsPerRev, stepsPerMM, microsteppingDivisor, displayName, breakPin, breakPinActiveState, breakEngageDelayMs, breakReleaseDelayMs) {
         const url = `${API_URL}/api/steppers?id=${id}`;
         var params = {
             stepPin: stepPin,
@@ -53,7 +57,11 @@ export class ApiService {
             name: displayName,
             stepsPerRev: parseInt(stepsPerRev),
             stepsPerMM: parseInt(stepsPerMM),
-            microsteppingDivisor: parseInt(microsteppingDivisor)
+            microsteppingDivisor: parseInt(microsteppingDivisor),
+            breakPin: parseInt(breakPin),
+            breakPinActiveState: parseInt(breakPinActiveState),
+            breakEngageDelayMs: parseInt(breakEngageDelayMs),
+            breakReleaseDelayMs: parseInt(breakReleaseDelayMs)
         };
         return axios.put(url, params).then(response => response.data);
     }
@@ -73,17 +81,17 @@ export class ApiService {
         return axios.post(url).then(response => response.data);
     }
 
-    stopStepper(stepperId){
+    stopStepper(stepperId) {
         const url = `${API_URL}/api/steppers/stop?id=${stepperId}`;
         return axios.get(url).then(response => response.data);
     }
 
-    triggerEmergencyStop(){
+    triggerEmergencyStop() {
         const url = `${API_URL}/api/emergencystop/trigger`;
         return axios.get(url).then(response => response.data);
     }
-    
-    revokeEmergencyStop(){
+
+    revokeEmergencyStop() {
         const url = `${API_URL}/api/emergencystop/revoke`;
         return axios.get(url).then(response => response.data);
     }
