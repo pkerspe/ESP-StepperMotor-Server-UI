@@ -19,12 +19,12 @@
           <br />
           {{stepperConfiguration.id}}
           <br />
-          {{stepperConfiguration.position.mm}} mm / {{stepperConfiguration.position.revs}} revs /
+          {{stepperConfiguration.position.mm}} mm | {{stepperConfiguration.position.revs}} revs |
           {{stepperConfiguration.position.steps}} steps
           <br />
           {{stepperConfiguration.stopped}}
           <br />
-          {{stepperConfiguration.velocity.rev_s}} revs/sec / {{stepperConfiguration.velocity.mm_s}} mm_s /
+          {{stepperConfiguration.velocity.rev_s}} revs/sec | {{stepperConfiguration.velocity.mm_s}} mm/sec |
           {{stepperConfiguration.velocity.steps_s}} steps/sec
           <br />
         </div>
@@ -46,17 +46,31 @@
           <font-awesome-icon icon="fast-forward"></font-awesome-icon>
         </b-button>
       </div>
-      <div class="form-group">
-        <input class="form-control" v-model="stepperSpeed" type="number" id="speed" />
-        <label for="speed">Speed in steps per second</label>
+      <div class="form-group row mb-1">
+        <label class="col-6 col-form-label col-form-label" for="speed">Speed in steps per second</label>
+        <div class="col-auto">
+          <input class="form-control" v-model="stepperSpeed" type="number" id="speed" />
+        </div>
       </div>
-      <div class="form-group">
-        <input class="form-control" v-model="acceleration" type="number" id="acceleration" />
-        <label for="acceleration">Accelleration in steps/second</label>
+      <div class="form-group row mb-1">
+        <label
+          class="col-6 col-form-label col-form-label"
+          for="acceleration"
+        >Acceleration/deceleration in steps per second</label>
+        <div class="col-auto">
+          <input class="form-control" v-model="acceleration" type="number" id="acceleration" />
+        </div>
       </div>
-      <div class="form-group">
-        <input class="form-control" v-model="distance" type="number" id="distance" />
-        <label for="distance">Distance in steps</label>
+      <div class="form-group row">
+        <label class="col-6 col-form-label col-form-label" for="distance">Distance to travel</label>
+        <div class="col-auto form-inline">
+          <input class="form-control" v-model="distance" type="number" id="distance" />
+          <select class="form-control ml-1" v-model="stepUnit">
+            <option value="steps">steps</option>
+            <option value="mm">mm</option>
+            <option value="revs">revolutions</option>
+          </select>
+        </div>
       </div>
     </div>
   </div>
@@ -71,55 +85,58 @@ const apiService = new ApiService();
 
 export default {
   name: "StepperMotorControlPanel",
-  data: function() {
+  data: function () {
     return {
       stepperSpeed: 800,
       distance: 500,
-      acceleration: 500
+      acceleration: 500,
+      stepUnit: "steps"
     };
   },
   props: {
-    stepperConfiguration: Object
+    stepperConfiguration: Object,
   },
   components: {
-    BButton
+    BButton,
   },
   methods: {
     stop() {
-      apiService.stopStepper(this.stepperConfiguration.id).then(data => {
+      apiService.stopStepper(this.stepperConfiguration.id).then((data) => {
         //do something
         console.log(data);
       });
     },
     moveForward() {
       apiService
-        .moveStepperBySteps(
+        .moveStepper(
           this.stepperConfiguration.id,
           this.distance,
           this.stepperSpeed,
-          this.acceleration
+          this.acceleration,
+          this.stepUnit
         )
-        .then(data => {
+        .then((data) => {
           //do something
           console.log(data);
         });
     },
     moveBack() {
       apiService
-        .moveStepperBySteps(
+        .moveStepper(
           this.stepperConfiguration.id,
           0 - this.distance,
           this.stepperSpeed,
-          this.acceleration
+          this.acceleration,
+          this.stepUnit
         )
-        .then(data => {
+        .then((data) => {
           //do something
           console.log(data);
         });
     },
     moveToHomeEnd() {},
-    moveToHomeBegin() {}
-  }
+    moveToHomeBegin() {},
+  },
 };
 </script>
 

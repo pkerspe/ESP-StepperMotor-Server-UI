@@ -66,18 +66,8 @@ export class ApiService {
         return axios.put(url, params).then(response => response.data);
     }
 
-    moveStepperBySteps(stepperId, steps, speed, accell) {
-        const url = `${API_URL}/api/steppers/moveby?id=${stepperId}&value=${steps}&unit=steps&speed=${speed}&accell=${accell}`;
-        return axios.post(url).then(response => response.data);
-    }
-
-    moveStepperByRevs(stepperId, revs) {
-        const url = `${API_URL}/api/steppers/moveby?id=${stepperId}&value=${revs}&unit=revs`;
-        return axios.post(url).then(response => response.data);
-    }
-
-    moveStepperByMilimeter(stepperId, mm) {
-        const url = `${API_URL}/api/steppers/moveby?id=${stepperId}&value=${mm}&unit=mm`;
+    moveStepper(stepperId, steps, speed, accel, unit) {
+        const url = `${API_URL}/api/steppers/moveby?id=${stepperId}&value=${steps}&unit=${unit}&speed=${speed}&accel=${accel}&decel=${accel}`;
         return axios.post(url).then(response => response.data);
     }
 

@@ -16,25 +16,65 @@ const apiService = new ApiService();
 
 export default {
   name: "setup",
-  data: function() {
+  data: function () {
     return {
-      configuredSteppers: []
+      configuredSteppers: [],
+      positions: {},
     };
   },
   components: {
-    StepperMotorControlPanel
+    StepperMotorControlPanel,
   },
   methods: {
     getConfiguredSteppers() {
-      apiService.getConfiguredStepperMotors().then(data => {
-        this.configuredSteppers = data.filter(function(stepper) {
+      apiService.getConfiguredStepperMotors().then((data) => {
+        this.configuredSteppers = data.filter(function (stepper) {
           return stepper.configured == "true";
         });
       });
-    }
+    },
+    handleSocketMessage(event) {
+      if (event.data.startsWith("{")) {
+        this.positions = JSON.parse(event.data);
+        for (var i = 0; i < this.configuredSteppers.length; i++) {
+          this.configuredSteppers[i].position.steps = this.positions[
+            "s" + i + "pos"
+          ];
+          this.configuredSteppers[i].position.revs = parseFloat(
+            this.configuredSteppers[i].position.steps /
+              this.configuredSteppers[i].stepsPerRev
+          ).toFixed(2);
+          this.configuredSteppers[i].position.mm = parseFloat(
+            this.configuredSteppers[i].position.steps /
+              this.configuredSteppers[i].stepsPerMM
+          ).toFixed(2);
+
+          this.configuredSteppers[i].velocity.steps_s = parseFloat(this.positions[
+            "s" + i + "vel"
+          ]).toFixed(2);
+          this.configuredSteppers[i].velocity.rev_s = parseFloat(
+            this.configuredSteppers[i].velocity.steps_s /
+              this.configuredSteppers[i].stepsPerRev
+          ).toFixed(2);
+          this.configuredSteppers[i].velocity.mm_s = parseFloat(
+            this.configuredSteppers[i].velocity.steps_s /
+              this.configuredSteppers[i].stepsPerMM
+          ).toFixed(2);
+        }
+      }
+    },
   },
   mounted() {
     this.getConfiguredSteppers();
-  }
+    const socket = new WebSocket("ws://192.168.178.51/ws");
+
+    // Connection opened
+    socket.addEventListener("open", function (event) {
+      console.log(event);
+    });
+
+    // Listen for messages
+    socket.addEventListener("message", this.handleSocketMessage);
+  },
 };
 </script>
