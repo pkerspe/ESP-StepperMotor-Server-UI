@@ -13,6 +13,7 @@ import { ApiService } from "../services/ApiService";
 import StepperMotorControlPanel from "../components/StepperMotorControlPanel";
 
 const apiService = new ApiService();
+const API_URL = process.env.VUE_APP_REST_API_BASE_URL;
 
 export default {
   name: "setup",
@@ -66,7 +67,11 @@ export default {
   },
   mounted() {
     this.getConfiguredSteppers();
-    const socket = new WebSocket("ws://192.168.178.51/ws");
+    var wsUrl = wsUrl = "ws://" + window.location.host + "/ws";
+    if(API_URL != ""){
+      wsUrl = API_URL.replace("http://", "ws://") + "/ws";
+    }
+    const socket = new WebSocket(wsUrl);
 
     // Connection opened
     socket.addEventListener("open", function (event) {
