@@ -1,12 +1,12 @@
 {
     "name": "esp-steppermotor-server-ui",
-    "version": "0.3.3",
+    "version": "0.4.0",
     "private": true,
     "scripts": {
         "serve": "vue-cli-service serve",
         "build": "vue-cli-service build && npm run prepareExampleDistPackageForESP",
         "lint": "vue-cli-service lint",
-        "prepareExampleDistPackageForESP": "rm -rf data && mkdir data && cp -R dist/* data/ && rm -rf data/js/*.js && rm -rf data/js/*.map* && sed 's/app\\.js/app\\.js\\.gz/g' data/index.html > data/index2.html && sed \"s/#VERSION#/$npm_package_version/g\" data/index2.html > data/index.html && rm data/index2.html && tar -czf data/upload.html.gz public/upload.html && rm data/upload.html"
+        "prepareExampleDistPackageForESP": "rm -rf data && mkdir data && cp -R dist/* data/ && rm -rf data/js/*.js && rm -rf data/js/*.map* && sed 's/app\\.js/app\\.js\\.gz/g' data/index.html > data/index2.html && sed \"s/#VERSION#/$npm_package_version/g\" data/index2.html > data/index.html && rm data/index2.html && gzip -k ./public/upload.html && mv ./public/upload.html.gz ./data/ && rm ./data/upload.html"
     },
     "dependencies": {
         "core-js": "^3.6.5",

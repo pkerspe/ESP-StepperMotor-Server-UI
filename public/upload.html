@@ -135,7 +135,7 @@
     <form action="#">
       <h1>Upload</h1>
       <p>select the firmware-file</p>
-      <p><input type="file" id="uploadFile"/></p>
+      <p><input type="file" accept=".bin" id="uploadFile"/></p>
       <button onclick="if(document.getElementById('uploadFile').files.length == 0){ alert('Please select the firmware file first');return false;} else {return true;}">START UPLOAD</button>
     </form>
   </div>
