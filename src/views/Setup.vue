@@ -331,7 +331,7 @@
                 and its active state
               </small>
             </div>
-            <div v-if="switchToAdd.switchType != this.switchTypes[3].bitMask" class="form-group">
+            <div v-if="switchToAdd.switchType != this.switchTypes[4].bitMask" class="form-group">
               <label for="stepperId">Stepper motor the switch belongs to</label>
               <select id="stepperId" class="form-control" v-model="switchToAdd.stepperId">
                 <option value="-1" selected>please select a stepper motor</option>
@@ -346,7 +346,7 @@
                 this switch should be associated with
               </small>
             </div>
-            <div v-if="switchToAdd.switchType != this.switchTypes[3].bitMask" class="form-group">
+            <div v-if="switchToAdd.switchType != this.switchTypes[4].bitMask" class="form-group">
               <label for="switchPosition">
                 Position (in steps) of the switch or -1 for no specific
                 position
@@ -923,7 +923,7 @@ export default {
     },
     addSwitch(bvModalEvt) {
       //emergency switch is currently only supported as global switch, so no need for stepper ID
-      if (this.switchToAdd.switchType == this.switchTypes[3].bitMask) {
+      if (this.switchToAdd.switchType == this.switchTypes[4].bitMask) {
         this.switchToAdd.switchPosition = -1;
         this.switchToAdd.stepperId = -1;
       }
@@ -935,7 +935,7 @@ export default {
       } else if (this.switchToAdd.ioPinNumber == -1) {
         alert("Please select the IO pin the switch is connected to");
       } else if (
-        this.switchToAdd.switchType != this.switchTypes[3].bitMask &&
+        this.switchToAdd.switchType != this.switchTypes[4].bitMask &&
         this.switchToAdd.stepperId == -1
       ) {
         alert("Please select the stepper motor this switch is used for");
