@@ -4,12 +4,12 @@
       <div class="d-flex flex-row">
         <div class="d-none d-sm-inline-block align-self-center p-1">
           <img
-            v-if="(this.switchConfiguration.type > 32)"
+            v-if="(this.switchConfiguration.type == 32 || this.switchConfiguration.type == 33 || this.switchConfiguration.type == 34)"
             src="../assets/emergencyStopSwitch.svg"
             style="width:70px;"
           />
           <img
-            v-if="(this.switchConfiguration.type < 32)"
+            v-else
             src="../assets/switch.svg"
             style="width:70px;"
           />
@@ -17,7 +17,7 @@
         <div class="p-1 pl-3">
           Name:
           <br />IO-Pin:
-          <span v-if="(this.switchConfiguration.type < 32)">
+          <span v-if="(this.switchConfiguration.type != 32 && this.switchConfiguration.type != 33 && this.switchConfiguration.type != 34)">
             <br />Stepper ID:
           </span>
           <br />Switch type:
@@ -28,7 +28,7 @@
           <br />
           <strong>{{switchConfiguration.ioPin}}</strong>
           <br />
-          <span v-if="(this.switchConfiguration.type < 32)">
+          <span v-if="(this.switchConfiguration.type != 32 && this.switchConfiguration.type != 33 && this.switchConfiguration.type != 34)">
             <strong>{{switchConfiguration.stepperId}}</strong>
             <br />
           </span>
@@ -38,7 +38,7 @@
         <div class="p-1 pl-3">
           ID:
           <br />Signal:
-          <span v-if="(this.switchConfiguration.type < 32)">
+          <span v-if="(this.switchConfiguration.type != 32 && this.switchConfiguration.type != 33 && this.switchConfiguration.type != 34)">
             <br />Stepper Name:
             <br />Switch position:
           </span>
@@ -48,7 +48,7 @@
           <br />
           <strong>{{(switchConfiguration.isActiveHighType) ? 'active high': 'active low'}}</strong>
           <br />
-          <span v-if="(this.switchConfiguration.type < 32)">
+          <span v-if="(this.switchConfiguration.type != 32 && this.switchConfiguration.type != 33 && this.switchConfiguration.type != 34)">
             <strong>{{this.getStepperNameForId(switchConfiguration.stepperId)}}</strong>
             <br />
             <strong>{{(switchConfiguration.switchPosition == -1) ? 'none': switchConfiguration.switchPosition}}</strong>
