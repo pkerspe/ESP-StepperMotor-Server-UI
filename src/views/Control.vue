@@ -1,10 +1,11 @@
 <template>
   <div class="control">
-    <stepper-motor-control-panel
-      v-for="stepperConfiguration in configuredSteppers"
-      v-bind:key="'stepper-'+stepperConfiguration.id"
-      v-bind:stepperConfiguration="stepperConfiguration"
-    ></stepper-motor-control-panel>
+
+    <div v-for="stepperConfiguration in configuredSteppers" v-bind:key="stepperConfiguration.id">
+      <stepper-motor-control-panel
+              v-bind:stepperConfiguration="stepperConfiguration"
+      ></stepper-motor-control-panel>
+    </div>
   </div>
 </template>
 

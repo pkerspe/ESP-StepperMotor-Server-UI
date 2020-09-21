@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 <template>
   <div class="stepperControlPanel card card-small mt-3">
+    <slot></slot>
     <div class="card-body p-3">
       <div class="d-flex flex-row">
         <div class="d-none d-sm-inline-block align-self-center p-1">
@@ -139,7 +140,3 @@ export default {
   },
 };
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-</style>

@@ -518,6 +518,10 @@ export default {
           displayName: "homing switch end/right/top"
         },
         {
+          bitMask: 64,
+          displayName: "combined homing switch begin and end (in serial)"
+        },
+        {
           bitMask: 16,
           displayName: "general position switch"
         },
