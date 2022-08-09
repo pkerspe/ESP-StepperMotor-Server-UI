@@ -38,13 +38,13 @@ export class ApiService {
             stepPin: stepPin,
             dirPin: dirPin,
             name: displayName,
-            stepsPerRev: parseInt(stepsPerRev),
-            stepsPerMM: parseInt(stepsPerMM),
-            microsteppingDivisor: parseInt(microsteppingDivisor),
-            brakePin: parseInt(brakePin),
-            brakePinActiveState: parseInt(brakePinActiveState),
-            brakeEngageDelayMs: parseInt(brakeEngageDelayMs),
-            brakeReleaseDelayMs: parseInt(brakeReleaseDelayMs)
+            stepsPerRev: parseInt(stepsPerRev, 10),
+            stepsPerMM: parseInt(stepsPerMM, 10),
+            microsteppingDivisor: parseInt(microsteppingDivisor, 10),
+            brakePin: parseInt(brakePin, 10),
+            brakePinActiveState: parseInt(brakePinActiveState, 10),
+            brakeEngageDelayMs: parseInt(brakeEngageDelayMs, 10),
+            brakeReleaseDelayMs: parseInt(brakeReleaseDelayMs, 10)
         };
         return axios.post(url, params).then(response => response.data);
     }
