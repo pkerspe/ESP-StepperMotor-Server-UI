@@ -17,7 +17,7 @@ const apiService = new ApiService();
 const API_URL = process.env.VUE_APP_REST_API_BASE_URL;
 
 export default {
-  name: "setup",
+  name: "controlView",
   data: function () {
     return {
       configuredSteppers: [],

@@ -12,7 +12,7 @@
 
 <script>
 export default {
-  name: "home",
+  name: "homeView",
   components: {},
   directives: {},
 };

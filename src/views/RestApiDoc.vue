@@ -70,7 +70,7 @@ import axios from "axios";
 const apiService = new ApiService();
 
 export default {
-  name: "restapi",
+  name: "restAPI",
   data: function() {
     return {
       versionNumber: window.serverUIVersion,

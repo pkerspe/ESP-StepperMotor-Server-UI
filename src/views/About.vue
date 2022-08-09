@@ -52,7 +52,7 @@
     const apiService = new ApiService();
 
     export default {
-        name: 'about',
+        name: 'aboutView',
         data: function () {
             return {
                 versionNumber: window.serverUIVersion,

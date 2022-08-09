@@ -505,7 +505,7 @@ import RotaryEncoderDetails from "../components/RotaryEncoderDetails";
 const apiService = new ApiService();
 
 export default {
-  name: "setup",
+  name: "setupView",
   data: function() {
     return {
       switchTypes: [
