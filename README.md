@@ -9,22 +9,22 @@ For documentation and more information see:
 # esp-steppermotor-server-ui
 
 ## Project setup
-```
+```lang-none
 npm install
 ```
 
 ## Compiles and hot-reloads for development
-```
+```lang-none
 npm run serve
 ```
 
 ## Compiles and minifies for production
-```
+```lang-none
 npm run build
 ```
 
 ## Lints and fixes files
-```
+```lang-none
 npm run lint
 ```
 
